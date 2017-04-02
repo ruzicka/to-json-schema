@@ -11,6 +11,7 @@
   "dependencies": {
     "lodash.isequal": "^4.5.0",
     "lodash.keys": "^4.2.0",
+    "lodash.merge": "^4.6.0",
     "lodash.xor": "^4.5.0"
   },
   "devDependencies": {
