@@ -7,12 +7,15 @@ const isEqual = require('lodash.isequal');
 const defaultOptions = {
   strings: {
     detectFormat: true,
-    customFunction: null,
+    customFnc: null,
   },
   arrays: {
     mode: 'merge'
   }
 }
+
+const skipReverseFind = ['hostname', 'host-name', 'alpha', 'alphanumeric', 'regex', 'regexp', 'pattern']
+const filteredFormats = helpers.stringFormats.filter(item => skipReverseFind.indexOf(item) < 0)
 
 function getCommonTypeFromArrayOfTypes(arrOfTypes) {
   let lastVal
@@ -108,22 +111,26 @@ class ToJsonSchema {
     return schema
   }
 
-  getStringSchema(value) {
+  getStringSchemaDefault(value) {
     const schema = {type: 'string'}
 
-    let index = helpers.stringFormats.indexOf(value)
+    if (!this.options.strings.detectFormat) {
+      return schema
+    }
+
+    const index = filteredFormats.findIndex(item => helpers.isFormat(value, item))
     if (index >= 0) {
-      schema.format = helpers.stringFormats[index]
-    } else {
-      const skipReverseFind = ['hostname', 'host-name', 'alpha', 'alphanumeric', 'regex', 'regexp', 'pattern']
-      const filteredFormats = helpers.stringFormats.filter(item => skipReverseFind.indexOf(item) < 0)
-      index = filteredFormats.findIndex(item => helpers.isFormat(value, item))
-      if (index >= 0) {
-        schema.format = filteredFormats[index]
-      }
+      schema.format = filteredFormats[index]
     }
 
     return schema
+  }
+
+  getStringSchema(value) {
+    if (this.options.strings.customFnc) {
+      return this.options.strings.customFnc(value, this.getStringSchemaDefault.bind(this))
+    }
+    return this.getStringSchemaDefault(value)
   }
 
   /**
@@ -170,6 +177,15 @@ function toJsonSchema(value, arrayMerge, required) {
   const tjs = new ToJsonSchema({
     arrays: {
       mode: arrayMerge ? 'merge' : 'first',
+    },
+    strings: {
+      customFnc: (value, prevFnc) => {
+        const index = helpers.stringFormats.indexOf(value)
+        if (index >= 0) {
+          return {type: 'string', format: helpers.stringFormats[index]}
+        }
+        return prevFnc(value)
+      },
     }
   })
   return tjs.getSchema(value, required)

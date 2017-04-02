@@ -146,8 +146,6 @@ stringFormats.ipv4.reverse = false
 
 function stringFormatsTest() {
 	Object.keys(stringFormats).forEach(formatName => {
-		if (formatName !== 'style') return
-
 		const format = stringFormats[formatName]
 		describe(formatName, () => {
 
