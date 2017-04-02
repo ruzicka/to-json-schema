@@ -1,18 +1,15 @@
 'use strict'
 
-const jsonSchemaHelpers = require('jsonschema/lib/helpers')
 const isEqual = require('lodash.isequal');
 const xor = require('lodash.xor');
 const keys = require('lodash.keys');
-const Validator = require('jsonschema').Validator
-const v = new Validator()   // TODO verify if new instance is really needed
-const types = v.types
+const {types, FORMAT_REGEXPS, isFormat} = require('./jsonSchemaHelpers')
 
 const helpers = {
 
-	stringFormats: keys(jsonSchemaHelpers.FORMAT_REGEXPS),
+	stringFormats: keys(FORMAT_REGEXPS),
 
-	isFormat: jsonSchemaHelpers.isFormat,
+	isFormat,
 
 	typeNames: [
 		'integer',
@@ -98,7 +95,6 @@ const helpers = {
 			}
 		}
 		return retObj
-		console.log(retObj)
 	},
 
 }
