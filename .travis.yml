@@ -13,5 +13,3 @@ addons:
       - ubuntu-toolchain-r-test
     packages:
       - g++-4.9
-
-after_success: npm run deploy
