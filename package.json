@@ -1,0 +1,27 @@
+{
+  "name": "to-json-schema",
+  "version": "0.1.0",
+  "description": "Convert JS object to JSON Schema",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha --recursive"
+  },
+  "author": "David Ruzicka",
+  "license": "MIT",
+  "dependencies": {
+    "jsonschema": "^1.1.1",
+    "lodash.isequal": "^4.5.0",
+    "lodash.keys": "^4.2.0",
+    "lodash.xor": "^4.5.0"
+  },
+  "devDependencies": {
+    "chai": "^3.5.0",
+    "eslint": "^2.11.1",
+    "eslint-config-airbnb": "^9.0.1",
+    "eslint-config-airbnb-base": "^3.0.1",
+    "eslint-plugin-import": "^1.8.1",
+    "eslint-plugin-jsx-a11y": "^1.2.3",
+    "eslint-plugin-react": "^5.1.1",
+    "mocha": "^2.5.3"
+  }
+}
