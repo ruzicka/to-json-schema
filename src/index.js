@@ -10,8 +10,11 @@ const defaultOptions = {
     customFnc: null,
   },
   arrays: {
-    mode: 'merge'
-  }
+    mode: 'merge',
+  },
+  objects: {
+    customFnc: null,
+  },
 }
 
 const skipReverseFind = ['hostname', 'host-name', 'alpha', 'alphanumeric', 'regex', 'regexp', 'pattern']
@@ -56,7 +59,7 @@ class ToJsonSchema {
     return schemas.reduce((acc, current) => helpers.mergeSchemaObjs(acc, current), schemas.pop())
   }
 
-  getSchemaForObject(obj) {
+  getObjectSchemaDefault(obj) {
     const schema = {type: 'object'}
     const objKeys = Object.keys(obj).filter(key => key !== '$required' && key !== '$optional')
     if (objKeys.length > 0) {
@@ -81,7 +84,14 @@ class ToJsonSchema {
     return schema
   }
 
-  getSchemaForArray(arr) {
+  getObjectSchema(obj) {
+    if (this.options.objects.customFnc) {
+      return this.options.objects.customFnc(obj, this.getObjectSchemaDefault.bind(this))
+    }
+    return this.getObjectSchemaDefault(obj)
+  }
+
+  getArraySchemaMerging(arr) {
     const schema = {type: 'array'}
     const commonType = this.getCommonArrayItemsType(arr)
     if (commonType) {
@@ -96,7 +106,7 @@ class ToJsonSchema {
     return schema
   }
 
-  getSchemaForArrayNoMerging(arr) {
+  getArraySchemaNoMerging(arr) {
     const schema = {type: 'array'}
     if (arr.length > 0) {
       schema.items = this.getSchema(arr[0], null)
@@ -109,6 +119,11 @@ class ToJsonSchema {
       }
     }
     return schema
+  }
+
+  getArraySchema(arr) {
+    if (arr.length === 0) {return {type: 'array'}}
+    return this.options.arrays.mode === 'merge' ? this.getArraySchemaMerging(arr) : this.getArraySchemaNoMerging(arr)
   }
 
   getStringSchemaDefault(value) {
@@ -152,20 +167,23 @@ class ToJsonSchema {
       throw new Error("Type of value couldn't be determined")
     }
 
-    let schema = {type}
-
-    if (type === 'object') {
-      if (value.$schema) {
-        return value.$schema
-      }
-      schema = this.getSchemaForObject(value)
-    } else if (type === 'array' && value.length > 0) {
-      schema = this.options.arrays.mode === 'merge' ? this.getSchemaForArray(value) : this.getSchemaForArrayNoMerging(value)
-    } else if (type === 'string') {
-      schema = this.getStringSchema(value)
+    let schema
+    switch(type) {
+      case 'object':
+        schema = this.getObjectSchema(value)
+        break
+      case 'array':
+        schema = this.getArraySchema(value)
+        break
+      case 'string':
+        schema = this.getStringSchema(value)
+        break
+      default:
+        schema = {type}
     }
 
-    if (typeof required === 'boolean') {
+    // TODO $schema shouldn't be here
+    if (typeof required === 'boolean' && (type !== 'object' || !value.$schema )) {
       schema.required = required
     }
 
@@ -186,7 +204,10 @@ function toJsonSchema(value, arrayMerge, required) {
         }
         return prevFnc(value)
       },
-    }
+    },
+    objects: {
+      customFnc: (value, prevFnc) => value.$schema || prevFnc(value),
+    },
   })
   return tjs.getSchema(value, required)
 }

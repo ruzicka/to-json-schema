@@ -4,10 +4,7 @@ const toJsonSchema = require('../../src/index')
 const _ = require('lodash')
 
 function testSchema(options) {
-	return function (instance, jsonSchema, testData) {
-		if (typeof testData === 'undefined') {
-			testData = instance
-		}
+	return function (instance, jsonSchema) {
 		const schema = toJsonSchema(instance, options.arrayMerge)
 		if (!_.isEqual(schema, jsonSchema)) {
 			throw new Error('Generated schema is not deep equal with expected result')
