@@ -10,13 +10,12 @@ describe('Array', () => {
 	describe('Simple types', () => {
 
 		it('should get simple array schema for empty array', () => {
-			testSchemaBoth([], {type: 'array', required: true})
+			testSchemaBoth([], {type: 'array'})
 		})
 
 		it('should get array of integers schema for array of ints', () => {
 			testSchemaBoth([11, 12, 4], {
 				type: 'array',
-				required: true,
 				items: {
 					type: 'integer',
 				},
@@ -26,7 +25,6 @@ describe('Array', () => {
 		it('should get array of numbers schema for array of floats', () => {
 			testSchemaBoth([11.3, 12.4, 11.3], {
 				type: 'array',
-				required: true,
 				items: {
 					type: 'number',
 				},
@@ -37,7 +35,6 @@ describe('Array', () => {
 			const data = [11.3, 12.4, 4]
 			testSchemaMerge(data, {
 				type: 'array',
-				required: true,
 				items: {
 					type: 'number',
 				},
@@ -49,7 +46,6 @@ describe('Array', () => {
 			const data = [11, 12.4, 4]
 			testSchemaMerge(data, {
 				type: 'array',
-				required: true,
 				items: {
 					type: 'number',
 				},
@@ -60,7 +56,6 @@ describe('Array', () => {
 		it('should get array of strings schema for array of strings', () => {
 			testSchemaBoth(['hello', 'hi', 'yo'], {
 				type: 'array',
-				required: true,
 				items: {
 					type: 'string',
 				},
@@ -69,7 +64,7 @@ describe('Array', () => {
 
 		it('should get simple array schema for array of mixed types', () => {
 			const data = ['hello', 'hi', 11]
-			testSchemaMerge(data, {type: 'array', required: true})
+			testSchemaMerge(data, {type: 'array'})
 			should.throw(() => testSchema(data), Error)
 		})
 
@@ -81,12 +76,11 @@ describe('Array', () => {
 		it('should get array of specific objects schema for array containing just one object', () => {
 			testSchemaBoth([{id: 11, title: 'test'}], {
 				type: 'array',
-				required: true,
 				items: {
 					type: 'object',
 					properties: {
-						id: {type: 'integer', required: true},
-						title: {type: 'string', required: true},
+						id: {type: 'integer'},
+						title: {type: 'string'},
 					},
 				},
 			})
@@ -98,12 +92,11 @@ describe('Array', () => {
 				{id: 12, title: 'test 2'},
 			], {
 				type: 'array',
-				required: true,
 				items: {
 					type: 'object',
 					properties: {
-						id: {type: 'integer', required: true},
-						title: {type: 'string', required: true},
+						id: {type: 'integer'},
+						title: {type: 'string'},
 					},
 				},
 			})
@@ -116,12 +109,11 @@ describe('Array', () => {
 			]
 			testSchemaMerge(data, {
 				type: 'array',
-				required: true,
 				items: {
 					type: 'object',
 					properties: {
-						id: {type: 'number', required: true},
-						title: {type: 'string', required: true},
+						id: {type: 'number'},
+						title: {type: 'string'},
 					},
 				},
 			})
@@ -135,7 +127,6 @@ describe('Array', () => {
 			]
 			testSchemaMerge(data, {
 				type: 'array',
-				required: true,
 				items: {
 					type: 'object',
 				},
@@ -150,7 +141,6 @@ describe('Array', () => {
 			]
 			testSchemaMerge(data, {
 				type: 'array',
-				required: true,
 				items: {
 					type: 'array',
 					items: {type: 'number'},
@@ -166,7 +156,6 @@ describe('Array', () => {
 			]
 			testSchemaMerge(data, {
 				type: 'array',
-				required: true,
 				items: {
 					type: 'array',
 				},
@@ -181,14 +170,12 @@ describe('Array', () => {
 			]
 			testSchemaMerge(data, {
 				type: 'array',
-				required: true,
 				items: {
 					type: 'object',
 					properties: {
-						id: {type: 'integer', required: true},
+						id: {type: 'integer'},
 						a: {
 							type: 'array',
-							required: true,
 							items: {type: 'number'},
 						},
 					},
@@ -204,14 +191,12 @@ describe('Array', () => {
 			]
 			testSchemaMerge(data, {
 				type: 'array',
-				required: true,
 				items: {
 					type: 'object',
 					properties: {
-						id: {type: 'integer', required: true},
+						id: {type: 'integer'},
 						a: {
 							type: 'array',
-							required: true,
 						},
 					},
 				},
@@ -253,21 +238,19 @@ describe('Array', () => {
 			]
 			testSchemaMerge(data, {
 				type: 'array',
-				required: true,
 				items: {
 					type: 'object',
 					properties: {
-						id: {type: 'integer', required: true},
+						id: {type: 'integer'},
 						a: {
 							type: 'array',
-							required: true,
 							items: {
 								type: 'object',
 								properties: {
-									b: {type: 'array', items: {type: 'integer'}, required: true},
-									c: {type: 'array', items: {type: 'number'}, required: true},
-									d: {type: 'array', items: {type: 'number'}, required: true},
-									e: {type: 'array', required: true},
+									b: {type: 'array', items: {type: 'integer'}},
+									c: {type: 'array', items: {type: 'number'}},
+									d: {type: 'array', items: {type: 'number'}},
+									e: {type: 'array'},
 								},
 							},
 						},
@@ -290,14 +273,12 @@ describe('Array', () => {
 			]
 			testSchemaMerge(data, {
 				type: 'array',
-				required: true,
 				items: {
 					type: 'object',
 					properties: {
-						id: {type: 'integer', required: true},
+						id: {type: 'integer'},
 						a: {
 							type: 'array',
-							required: true,
 							items: {
 								type: 'object',
 							},

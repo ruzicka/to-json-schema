@@ -5,6 +5,7 @@ const merge = require('lodash.merge');
 const isEqual = require('lodash.isequal');
 
 const defaultOptions = {
+  required: false,
   strings: {
     detectFormat: true,
     customFnc: null,
@@ -54,36 +55,48 @@ class ToJsonSchema {
    * @returns {object|null}
    */
   getCommonArrayItemSchema(arr) {
-    const schemas = arr.map(item => this.getSchema(item, null))
+    const schemas = arr.map(item => this.getSchema(item))
     // schemas.forEach(schema => console.log(JSON.stringify(schema, '\t')))
     return schemas.reduce((acc, current) => helpers.mergeSchemaObjs(acc, current), schemas.pop())
   }
 
   getObjectSchemaDefault(obj) {
     const schema = {type: 'object'}
-    const objKeys = Object.keys(obj).filter(key => key !== '$required' && key !== '$optional')
+    const objKeys = Object.keys(obj)
     if (objKeys.length > 0) {
-      const requiredFields = obj.$required || []
-      const notRequiredFields = obj.$optional || []
-      if (obj.$required && obj.$optional) {
-        throw new Error("Defining both '$required' and '$optional' fields is not allowed")
-      }
-      const defaultRequired = !Boolean(obj.$required)
       schema.properties = objKeys.reduce((acc, propertyName) => {
-        let requiredVal = defaultRequired
-        if (requiredFields.indexOf(propertyName) >= 0) {
-          requiredVal = true
-        }
-        if (notRequiredFields.indexOf(propertyName) >= 0) {
-          requiredVal = false
-        }
-        acc[propertyName] = this.getSchema(obj[propertyName], requiredVal)
+        acc[propertyName] = this.getSchema(obj[propertyName])
         return acc
       }, {})
     }
     return schema
   }
 
+  // getObjectSchemaDefault(obj) {
+  //   const schema = {type: 'object'}
+  //   const objKeys = Object.keys(obj).filter(key => key !== '$required' && key !== '$optional')
+  //   if (objKeys.length > 0) {
+  //     const requiredFields = obj.$required || []
+  //     const notRequiredFields = obj.$optional || []
+  //     if (obj.$required && obj.$optional) {
+  //       throw new Error("Defining both '$required' and '$optional' fields is not allowed")
+  //     }
+  //     const defaultRequired = !Boolean(obj.$required)
+  //     schema.properties = objKeys.reduce((acc, propertyName) => {
+  //       let requiredVal = defaultRequired
+  //       if (requiredFields.indexOf(propertyName) >= 0) {
+  //         requiredVal = true
+  //       }
+  //       if (notRequiredFields.indexOf(propertyName) >= 0) {
+  //         requiredVal = false
+  //       }
+  //       acc[propertyName] = this.getSchema(obj[propertyName], requiredVal)
+  //       return acc
+  //     }, {})
+  //   }
+  //   return schema
+  // }
+  //
   getObjectSchema(obj) {
     if (this.options.objects.customFnc) {
       return this.options.objects.customFnc(obj, this.getObjectSchemaDefault.bind(this))
@@ -101,6 +114,10 @@ class ToJsonSchema {
         if (itemSchema) {
           schema.items = itemSchema
         }
+      } else {
+        if (this.options.required) {
+          schema.items.required = true
+        }
       }
     }
     return schema
@@ -109,11 +126,13 @@ class ToJsonSchema {
   getArraySchemaNoMerging(arr) {
     const schema = {type: 'array'}
     if (arr.length > 0) {
-      schema.items = this.getSchema(arr[0], null)
+      schema.items = this.getSchema(arr[0])
     }
+
+    // TODO isn't this superfluous? Shouldn't other items be just ignored?
     if (arr.length > 1) {
       for (let i = 1; i < arr.length; i++) {
-        if (!isEqual(schema.items, this.getSchema(arr[i], null))) {
+        if (!isEqual(schema.items, this.getSchema(arr[i]))) {
           throw new Error('Invalid schema, incompatible array items')
         }
       }
@@ -158,10 +177,6 @@ class ToJsonSchema {
    * @returns {object}
    */
   getSchema(value, required) {
-    // console.log(this.options);
-    if (typeof required === 'undefined') {
-      required = true
-    }
     const type = helpers.getType(value)
     if (!type) {
       throw new Error("Type of value couldn't be determined")
@@ -185,31 +200,17 @@ class ToJsonSchema {
     // TODO $schema shouldn't be here
     if (typeof required === 'boolean' && (type !== 'object' || !value.$schema )) {
       schema.required = required
+    } else if (this.options.required) {
+      schema.required = true
     }
 
     return schema
   }
 }
 
-function toJsonSchema(value, arrayMerge, required) {
-  const tjs = new ToJsonSchema({
-    arrays: {
-      mode: arrayMerge ? 'merge' : 'first',
-    },
-    strings: {
-      customFnc: (value, prevFnc) => {
-        const index = helpers.stringFormats.indexOf(value)
-        if (index >= 0) {
-          return {type: 'string', format: helpers.stringFormats[index]}
-        }
-        return prevFnc(value)
-      },
-    },
-    objects: {
-      customFnc: (value, prevFnc) => value.$schema || prevFnc(value),
-    },
-  })
-  return tjs.getSchema(value, required)
+function toJsonSchema(value, options) {
+  const tjs = new ToJsonSchema(options)
+  return tjs.getSchema(value)
 }
 
 module.exports = toJsonSchema

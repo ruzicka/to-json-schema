@@ -12,7 +12,7 @@ describe('Objects', () => {
 
 	describe('Invalid not-schema', () => {
 
-		it('should throw error if both $required and $optional present', () => {
+		it.skip('should throw error if both $required and $optional present', () => {
 			expect(() => toJsonSchema({
 				id: 11,
 				name: 'test',
@@ -31,7 +31,7 @@ describe('Objects', () => {
 	describe('Simple objects', () => {
 
 		it('should get schema for empty object', () => {
-			testSchema({}, {type: 'object', required: true})
+			testSchema({}, {type: 'object'})
 		})
 
 		it('should get schema for object with properties (no nested objects)', () => {
@@ -41,13 +41,11 @@ describe('Objects', () => {
 				labels: ['short', 'fat'],
 			}, {
 				type: 'object',
-				required: true,
 				properties: {
-					id: {type: 'integer', required: true},
-					name: {type: 'string', required: true},
+					id: {type: 'integer'},
+					name: {type: 'string'},
 					labels: {
 						type: 'array',
-						required: true,
 						items: {type: 'string'},
 					},
 				},
@@ -64,16 +62,14 @@ describe('Objects', () => {
 				},
 			}, {
 				type: 'object',
-				required: true,
 				properties: {
-					id: {type: 'integer', required: true},
-					name: {type: 'string', required: true},
+					id: {type: 'integer'},
+					name: {type: 'string'},
 					friend: {
 						type: 'object',
-						required: true,
 						properties: {
-							first_name: {type: 'string', required: true},
-							last_name: {type: 'string', required: true},
+							first_name: {type: 'string'},
+							last_name: {type: 'string'},
 						},
 					},
 				},
@@ -90,12 +86,10 @@ describe('Objects', () => {
 			}
 			const schema = {
 				type: 'object',
-				required: true,
 				properties: {
-					id: {type: 'integer', required: true},
+					id: {type: 'integer'},
 					a: {
 						type: 'array',
-						required: true,
 						items: {
 							type: 'object',
 						},
@@ -121,10 +115,9 @@ describe('Objects', () => {
 				labels: {$schema: {type: 'array', items: {type: 'string'}}},
 			}, {
 				type: 'object',
-				required: true,
 				properties: {
-					id: {type: 'integer', required: true},
-					name: {type: 'string', required: true},
+					id: {type: 'integer'},
+					name: {type: 'string'},
 					labels: {
 						type: 'array',
 						items: {type: 'string'},
@@ -142,18 +135,17 @@ describe('Objects', () => {
 				id: 11,
 				name: 'john',
 				friend: {$schema: {type: 'object', properties: {
-					first_name: {type: 'string', required: true},
-					last_name: {type: 'string', required: false},
+					first_name: {type: 'string'},
+					last_name: {type: 'string'},
 				}}},
 			}, {
 				type: 'object',
-				required: true,
 				properties: {
-					id: {type: 'integer', required: true},
-					name: {type: 'string', required: true},
+					id: {type: 'integer'},
+					name: {type: 'string'},
 					friend: {type: 'object', properties: {
-						first_name: {type: 'string', required: true},
-						last_name: {type: 'string', required: false},
+						first_name: {type: 'string'},
+						last_name: {type: 'string'},
 					}},
 				},
 			}, {

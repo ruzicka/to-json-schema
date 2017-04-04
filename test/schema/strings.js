@@ -2,7 +2,7 @@
 
 const helpers = require('../../src/helpers')
 const testSchema = require('../helpers/testSchema').tesSchemaWithAndWithoutArrayMerge
-const toJsonSchema = require('../../src/index')
+const toJsonSchema = require('../helpers/testSchema').toJsonSchema
 const chai = require('chai')
 chai.should()
 const _ = require('lodash')
@@ -152,7 +152,7 @@ function stringFormatsTest() {
 			const schema = toJsonSchema(formatName)
 
 			it(`should get ${formatName} string schema`, () => {
-				schema.should.deep.equal({type: 'string', format: formatName, required: true})
+				schema.should.deep.equal({type: 'string', format: formatName})
 			})
 		})
 	})
@@ -168,7 +168,7 @@ function reverseStringFormatTest() {
 			valid.forEach(item => {
 				it(`should validate ${item}`, () => {
 					const schema = toJsonSchema(item)
-					schema.should.deep.equal({type: 'string', format: formatName, required: true})
+					schema.should.deep.equal({type: 'string', format: formatName})
 				})
 			})
 		})
@@ -180,7 +180,7 @@ describe('Strings', () => {
 	describe('Normal string', () => {
 
 		it('should get string schema for generic string', () => {
-			testSchema('test string', {type: 'string', required: true})
+			testSchema('test string', {type: 'string'})
 		})
 
 	})
