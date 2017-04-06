@@ -3,16 +3,16 @@
 const testSchema = require('../helpers/testSchema').tesSchemaWithAndWithoutArrayMerge
 const testSchemaNormal = require('../helpers/testSchema').testSchemaWithoutArrayMerge
 const testSchemaMerge = require('../helpers/testSchema').testSchemaWithArrayMerge
+const toJsonSchema = require('../helpers/testSchema').toJsonSchema
 const should = require('chai').should()
 
-const toJsonSchema = require('../../src/index')
 const expect = require('chai').expect
 
 describe('Objects', () => {
 
 	describe('Invalid not-schema', () => {
 
-		it.skip('should throw error if both $required and $optional present', () => {
+		it('should throw error if both $required and $optional present', () => {
 			expect(() => toJsonSchema({
 				id: 11,
 				name: 'test',

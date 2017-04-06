@@ -3,6 +3,8 @@
 const toJsonSchema = require('../../src/index')
 const isEqual = require('lodash.isequal')
 const merge = require('lodash.merge')
+const omit = require('lodash.omit')
+const without = require('lodash.without');
 const helpers = require('../../src/helpers')
 
 const defaultOptions = {
@@ -20,7 +22,24 @@ const defaultOptions = {
     },
   },
   objects: {
-    customFnc: (value, prevFnc) => value.$schema || prevFnc(value),
+    customFnc: (obj, prevFnc) => {
+      if (obj.$schema) {return obj.$schema}
+
+      if (obj.$required && obj.$optional) {
+        throw new Error("Defining both '$required' and '$optional' fields is not allowed")
+      }
+      let requiredFields = obj.$required || []
+      const optionalFields = obj.$optional || []
+
+      const stripedObj = omit(obj, ['$required', '$optional'])
+
+      // optional to required
+      if (obj.$optional) {
+        requiredFields = without(Object.keys(stripedObj), optionalFields)
+      }
+
+      return  prevFnc(stripedObj, requiredFields)
+    }
   },
 }
 

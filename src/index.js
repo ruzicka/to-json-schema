@@ -60,43 +60,22 @@ class ToJsonSchema {
     return schemas.reduce((acc, current) => helpers.mergeSchemaObjs(acc, current), schemas.pop())
   }
 
-  getObjectSchemaDefault(obj) {
+  getObjectSchemaDefault(obj, requiredFields = []) {
     const schema = {type: 'object'}
-    const objKeys = Object.keys(obj)
+    const objKey<s = Object.keys(obj)
     if (objKeys.length > 0) {
       schema.properties = objKeys.reduce((acc, propertyName) => {
-        acc[propertyName] = this.getSchema(obj[propertyName])
+        let required  // keep it undefined if not in requiredFields
+        if (requiredFields.indexOf(propertyName) >= 0) {
+          required = true
+        }
+        acc[propertyName] = this.getSchema(obj[propertyName], required)
         return acc
       }, {})
     }
     return schema
   }
 
-  // getObjectSchemaDefault(obj) {
-  //   const schema = {type: 'object'}
-  //   const objKeys = Object.keys(obj).filter(key => key !== '$required' && key !== '$optional')
-  //   if (objKeys.length > 0) {
-  //     const requiredFields = obj.$required || []
-  //     const notRequiredFields = obj.$optional || []
-  //     if (obj.$required && obj.$optional) {
-  //       throw new Error("Defining both '$required' and '$optional' fields is not allowed")
-  //     }
-  //     const defaultRequired = !Boolean(obj.$required)
-  //     schema.properties = objKeys.reduce((acc, propertyName) => {
-  //       let requiredVal = defaultRequired
-  //       if (requiredFields.indexOf(propertyName) >= 0) {
-  //         requiredVal = true
-  //       }
-  //       if (notRequiredFields.indexOf(propertyName) >= 0) {
-  //         requiredVal = false
-  //       }
-  //       acc[propertyName] = this.getSchema(obj[propertyName], requiredVal)
-  //       return acc
-  //     }, {})
-  //   }
-  //   return schema
-  // }
-  //
   getObjectSchema(obj) {
     if (this.options.objects.customFnc) {
       return this.options.objects.customFnc(obj, this.getObjectSchemaDefault.bind(this))
