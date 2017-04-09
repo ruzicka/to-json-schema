@@ -62,7 +62,7 @@ class ToJsonSchema {
 
   getObjectSchemaDefault(obj, requiredFields = []) {
     const schema = {type: 'object'}
-    const objKey<s = Object.keys(obj)
+    const objKeys = Object.keys(obj)
     if (objKeys.length > 0) {
       schema.properties = objKeys.reduce((acc, propertyName) => {
         let required  // keep it undefined if not in requiredFields
