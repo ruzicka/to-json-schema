@@ -176,8 +176,7 @@ class ToJsonSchema {
         schema = {type}
     }
 
-    // TODO $schema shouldn't be here
-    if (typeof required === 'boolean' && (type !== 'object' || !value.$schema )) {
+    if (typeof required === 'boolean') {
       schema.required = required
     } else if (this.options.required) {
       schema.required = true
