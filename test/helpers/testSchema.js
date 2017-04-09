@@ -13,16 +13,16 @@ const defaultOptions = {
     mode: 'merge',
   },
   strings: {
-    customFnc: (value, prevFnc) => {
+    customFnc: (value, defaultFnc) => {
       const index = helpers.stringFormats.indexOf(value)
       if (index >= 0) {
         return {type: 'string', format: helpers.stringFormats[index]}
       }
-      return prevFnc(value)
+      return defaultFnc(value)
     },
   },
   objects: {
-    customFnc: (obj, prevFnc) => {
+    customFnc: (obj, defaultFnc) => {
       if (obj.$schema) {return obj.$schema}
 
       if (obj.$required && obj.$optional) {
@@ -38,7 +38,7 @@ const defaultOptions = {
         requiredFields = without(Object.keys(stripedObj), optionalFields)
       }
 
-      return  prevFnc(stripedObj, requiredFields)
+      return  defaultFnc(stripedObj, requiredFields)
     }
   },
 }
@@ -47,8 +47,6 @@ function testSchema(options) {
 	const opt = merge({}, defaultOptions, options)
 	return function (instance, jsonSchema) {
 		const schema = toJsonSchema(instance, opt)
-		console.log('aa', schema)
-		console.log('ex', jsonSchema)
 		if (!isEqual(schema, jsonSchema)) {
 			throw new Error('Generated schema is not deep equal with expected result')
 		}
