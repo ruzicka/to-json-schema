@@ -3,23 +3,15 @@
 const testSchema = require('../helpers/testSchema').tesSchemaWithAndWithoutArrayMerge
 const testSchemaNormal = require('../helpers/testSchema').testSchemaWithoutArrayMerge
 const testSchemaMerge = require('../helpers/testSchema').testSchemaWithArrayMerge
-const toJsonSchema = require('../helpers/testSchema').toJsonSchema
+const toJsonSchema = require('../../src/index')
 const should = require('chai').should()
+const omit = require('lodash.omit')
 
 const expect = require('chai').expect
 
 describe('Objects', () => {
 
 	describe('Invalid not-schema', () => {
-
-		it('should throw error if both $required and $optional present', () => {
-			expect(() => toJsonSchema({
-				id: 11,
-				name: 'test',
-				$required: ['name'],
-				$optional: ['id'],
-			})).to.throw(Error, "Defining both '$required' and '$optional' fields is not allowed")
-		})
 
 		it('should throw error for undefined value', () => {
 			expect(() => toJsonSchema()).to.throw(Error, "Type of value couldn't be determined")
@@ -102,61 +94,41 @@ describe('Objects', () => {
 
 	})
 
-	describe('Object containing real JSON schema', () => {
+	describe('Custom object func', () => {
 
-		it('should get schema for empty object', () => {
-			testSchema({$schema: {type: 'integer'}}, {type: 'integer'}, 11)
-		})
+		const options = {
+      objects: {
+        customFnc: (obj, defaultFnc) => {
+          return  defaultFnc(omit(obj, ['a']), ['b'])
+        }
+      },
+		}
 
-		it('should get schema for object with properties (no nested objects)', () => {
-			testSchema({
-				id: 11,
-				name: 'john',
-				labels: {$schema: {type: 'array', items: {type: 'string'}}},
-			}, {
+		it('should remove a and make b required', () => {
+			testSchema({a: 1, b: 2, c: 3}, {
 				type: 'object',
 				properties: {
-					id: {type: 'integer'},
-					name: {type: 'string'},
-					labels: {
-						type: 'array',
-						items: {type: 'string'},
-					},
-				},
-			}, {
-				id: 11,
-				name: 'john',
-				labels: ['item1', 'item2'],
-			})
+					b: {type: 'integer', required: true},
+					c: {type: 'integer'},
+				}
+			}, options)
 		})
 
-		it('should get schema for object with nested objects', () => {
-			testSchema({
-				id: 11,
-				name: 'john',
-				friend: {$schema: {type: 'object', properties: {
-					first_name: {type: 'string'},
-					last_name: {type: 'string'},
-				}}},
-			}, {
+		it('should remove a and make b required also for nested', () => {
+			testSchema({a: 1, b: 2, c: {a: 1, b: 2, c: 3}}, {
 				type: 'object',
 				properties: {
-					id: {type: 'integer'},
-					name: {type: 'string'},
-					friend: {type: 'object', properties: {
-						first_name: {type: 'string'},
-						last_name: {type: 'string'},
-					}},
-				},
-			}, {
-				id: 11,
-				name: 'john',
-				friends: {
-					first_name: 'jack',
-				},
-			})
+					b: {type: 'integer', required: true},
+					c: {
+            type: 'object',
+            properties: {
+              b: {type: 'integer', required: true},
+              c: {type: 'integer'},
+            }
+          },
+				}
+			}, options)
 		})
-
 	})
 
 })

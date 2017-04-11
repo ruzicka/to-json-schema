@@ -2,10 +2,12 @@
 
 const helpers = require('../../src/helpers')
 const testSchema = require('../helpers/testSchema').tesSchemaWithAndWithoutArrayMerge
-const toJsonSchema = require('../helpers/testSchema').toJsonSchema
+const tjs = require('../../src/index')
 const chai = require('chai')
 chai.should()
 const _ = require('lodash')
+
+const toJsonSchema = value => tjs(value, {strings: {detectFormat: true}})
 
 // TODO regulars
 
@@ -143,21 +145,6 @@ stringFormats.pattern = stringFormats.regex
 stringFormats.ipv4 = _.cloneDeep(stringFormats['ip-address'])
 stringFormats.ipv4.reverse = false
 
-
-function stringFormatsTest() {
-	Object.keys(stringFormats).forEach(formatName => {
-		const format = stringFormats[formatName]
-		describe(formatName, () => {
-
-			const schema = toJsonSchema(formatName)
-
-			it(`should get ${formatName} string schema`, () => {
-				schema.should.deep.equal({type: 'string', format: formatName})
-			})
-		})
-	})
-}
-
 function reverseStringFormatTest() {
 	Object.keys(stringFormats).filter(key => stringFormats[key].reverse).forEach(formatName => {
 		const format = stringFormats[formatName]
@@ -183,10 +170,6 @@ describe('Strings', () => {
 			testSchema('test string', {type: 'string'})
 		})
 
-	})
-
-	describe('String formats specified by name', () => {
-		stringFormatsTest()
 	})
 
 	describe('String format reverse discovery', () => {

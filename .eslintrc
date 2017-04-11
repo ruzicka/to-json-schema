@@ -2,10 +2,10 @@
   "extends": "airbnb-base",
   "env": {
     "node": true,
-    "mocha": true,
+    "mocha": true
   },
   "parserOptions": {
-    "sourceType": "script",
+    "sourceType": "script"
   },
   "rules": {
     "indent": [2, "tab"],
