@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "test": "mocha --recursive",
-    "test:coverage": "istanbul cover _mocha -- --recursive && cat ./coverage/lcov.info | coveralls"
+    "test:coverage": "istanbul cover _mocha -- --recursive",
+    "test:coveralls": "istanbul cover _mocha -- --recursive && cat ./coverage/lcov.info | coveralls"
   },
   "author": "David Ruzicka",
   "license": "MIT",
