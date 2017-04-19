@@ -32,8 +32,9 @@ const types = {
     return instance instanceof Date;
   },
 
-  any: function testAny (instance) {
-    return true;
+  any: /* istanbul ignore next: not using this but keeping it here for sake of completeness */
+    function testAny (instance) {
+      return true;
   },
 
   object: function testObject (instance) {
@@ -62,15 +63,16 @@ const FORMAT_REGEXPS = {
   'utc-millisec': function (input) {
     return (typeof input === 'string') && parseFloat(input) === parseInt(input, 10) && !isNaN(input);
   },
-  'regex': function (input) {
-    let result = true;
-    try {
-      new RegExp(input);
-    } catch (e) {
-      result = false;
-    }
-    return result;
-  },
+  'regex': /* istanbul ignore next: not supporting regex right now */
+    function (input) {
+      let result = true;
+      try {
+        new RegExp(input);
+      } catch (e) {
+        result = false;
+      }
+      return result;
+    },
   'style': /\s*(.+?):\s*([^;]+);?/g,
   'phone': /^\+(?:[0-9] ?){6,14}[0-9]$/
 };
@@ -86,9 +88,6 @@ const isFormat = function isFormat (input, format, validator) {
     if (typeof FORMAT_REGEXPS[format] === 'function') {
       return FORMAT_REGEXPS[format](input);
     }
-  } else if (validator && validator.customFormats &&
-    typeof validator.customFormats[format] === 'function') {
-    return validator.customFormats[format](input);
   }
   return true;
 };
