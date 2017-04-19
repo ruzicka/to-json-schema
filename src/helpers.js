@@ -74,6 +74,7 @@ const helpers = {
 					retObj[key] = x
 				}
 			} else {
+				// simple value schema properties (not defined by object)
 				if (key === 'type') {
 					if (schema1[key] !== schema2[key]) {
 						if ((schema1[key] === 'integer' && schema2[key] === 'number')
@@ -87,6 +88,7 @@ const helpers = {
 					}
 				} else {
 					if (!isEqual(schema1[key], schema2[key])) {
+						// TODO Is it possible to even take this path?
 						return null
 					} else {
 						retObj[key] = schema1[key]

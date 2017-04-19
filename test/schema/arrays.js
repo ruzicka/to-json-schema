@@ -289,6 +289,34 @@ describe('Array', () => {
 			should.throw(() => testSchema(data), Error)
 		})
 
+    it('should get array of generic objects', () => {
+    	// objects properties have incompatible type and as such will be ignored
+      testSchemaMerge([{a: 1}, {a: 'a'}], {
+        type: 'array',
+        items: {
+          type: 'object',
+        },
+      })
+    })
+
+    // // TODO eventualy make this work
+    // it('merging strings of different formats', () => {
+    //   testSchemaMerge([{a: ['test']}, {a: ['2012-07-08T16:41:41.532Z']}], {
+    //     type: 'array',
+    //     items: {
+    //       type: 'object',
+	   //      properties: {
+    //       	a: {
+    //       		type: 'array',
+		 //          items: {
+    //       			type: 'string'
+		 //          }
+	   //        }
+	   //      }
+    //     },
+    //   })
+    // })
+
 	})
 
 })

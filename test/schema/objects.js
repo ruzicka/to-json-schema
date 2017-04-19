@@ -131,4 +131,12 @@ describe('Objects', () => {
 		})
 	})
 
+  describe('Errors', () => {
+
+    it('should throw error for undefined value', () => {
+      expect(() => toJsonSchema()).to.throw(Error, "Type of value couldn't be determined")
+    })
+
+  })
+
 })

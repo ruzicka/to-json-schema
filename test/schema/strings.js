@@ -2,12 +2,10 @@
 
 const helpers = require('../../src/helpers')
 const testSchema = require('../helpers/testSchema').tesSchemaWithAndWithoutArrayMerge
-const tjs = require('../../src/index')
+const toJsonSchema = require('../../src/index')
 const chai = require('chai')
 chai.should()
 const _ = require('lodash')
-
-const toJsonSchema = value => tjs(value, {strings: {detectFormat: true}})
 
 // TODO regulars
 
@@ -154,8 +152,25 @@ function reverseStringFormatTest() {
 			const valid = Array.isArray(format.valid) ? format.valid : [format.valid]
 			valid.forEach(item => {
 				it(`should validate ${item}`, () => {
-					const schema = toJsonSchema(item)
+					const schema = toJsonSchema(item, {strings: {detectFormat: true}})
 					schema.should.deep.equal({type: 'string', format: formatName})
+				})
+			})
+		})
+	})
+}
+
+function noDetectionStringFormatTest() {
+	Object.keys(stringFormats).forEach(formatName => {
+		const format = stringFormats[formatName]
+
+		describe(formatName, () => {
+
+			const valid = Array.isArray(format.valid) ? format.valid : [format.valid]
+			valid.forEach(item => {
+				it(`should validate ${item}`, () => {
+					const schema = toJsonSchema(item, {strings: {detectFormat: false}})
+					schema.should.deep.equal({type: 'string'})
 				})
 			})
 		})
@@ -174,6 +189,39 @@ describe('Strings', () => {
 
 	describe('String format reverse discovery', () => {
 		reverseStringFormatTest()
+	})
+
+	describe('String format no detection', () => {
+    noDetectionStringFormatTest()
+	})
+
+	describe('Custom string function', () => {
+		const config = {
+      strings: {
+        detectFormat: true,
+        customFnc: (value, defaultFnc) => {
+          if (value === 'date') {
+            return {type: 'string', format: 'date'}
+          }
+          return defaultFnc(value)
+        },
+      }
+    }
+
+    it(`should get schema for 'test'`, () => {
+      const schema = toJsonSchema('test', config)
+      schema.should.deep.equal({type: 'string'})
+    })
+
+    it(`should get schema for 'date'`, () => {
+      const schema = toJsonSchema('date', config)
+      schema.should.deep.equal({type: 'string', format: 'date'})
+    })
+
+    it(`should get schema for mixed case of both previous`, () => {
+      const schema = toJsonSchema({a: 'test', b: 'date'}, config)
+      schema.should.deep.equal({type: 'object', properties: {a: {type: 'string'}, b: {type: 'string', format: 'date'}}})
+    })
 	})
 
 })
