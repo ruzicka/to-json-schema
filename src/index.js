@@ -1,8 +1,9 @@
 'use strict'
 
+const merge = require('lodash.merge')
+const isEqual = require('lodash.isequal')
+
 const helpers = require('./helpers')
-const merge = require('lodash.merge');
-const isEqual = require('lodash.isequal');
 
 const defaultOptions = {
   required: false,
@@ -69,7 +70,7 @@ class ToJsonSchema {
         if (requiredFields.indexOf(propertyName) >= 0) {
           required = true
         }
-        acc[propertyName] = this.getSchema(obj[propertyName], required)
+        acc[propertyName] = this.getSchema(obj[propertyName], required) // eslint-disable-line no-param-reassign
         return acc
       }, {})
     }
@@ -120,7 +121,7 @@ class ToJsonSchema {
   }
 
   getArraySchema(arr) {
-    if (arr.length === 0) {return {type: 'array'}}
+    if (arr.length === 0) { return {type: 'array'} }
     return this.options.arrays.mode === 'merge' ? this.getArraySchemaMerging(arr) : this.getArraySchemaNoMerging(arr)
   }
 
@@ -162,7 +163,7 @@ class ToJsonSchema {
     }
 
     let schema
-    switch(type) {
+    switch (type) {
       case 'object':
         schema = this.getObjectSchema(value)
         break
