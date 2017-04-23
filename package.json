@@ -1,6 +1,6 @@
 {
   "name": "to-json-schema",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Convert JS object to JSON Schema",
   "main": "lib/index.js",
   "scripts": {
@@ -48,5 +48,7 @@
     "lodash.clonedeep": "^4.5.0",
     "mocha": "^2.5.3"
   },
-  "files": ["lib"]
+  "files": [
+    "lib"
+  ]
 }
