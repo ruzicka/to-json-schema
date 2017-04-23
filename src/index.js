@@ -12,7 +12,7 @@ const defaultOptions = {
     customFnc: null,
   },
   arrays: {
-    mode: 'merge',
+    mode: 'all',
   },
   objects: {
     customFnc: null,
@@ -108,8 +108,12 @@ class ToJsonSchema {
     if (arr.length > 0) {
       schema.items = this.getSchema(arr[0])
     }
+    return schema
+  }
 
-    // TODO isn't this superfluous? Shouldn't other items be just ignored?
+  getArraySchemaUniform(arr) {
+    const schema = this.getArraySchemaNoMerging(arr)
+
     if (arr.length > 1) {
       for (let i = 1; i < arr.length; i++) {
         if (!isEqual(schema.items, this.getSchema(arr[i]))) {
@@ -122,7 +126,12 @@ class ToJsonSchema {
 
   getArraySchema(arr) {
     if (arr.length === 0) { return {type: 'array'} }
-    return this.options.arrays.mode === 'merge' ? this.getArraySchemaMerging(arr) : this.getArraySchemaNoMerging(arr)
+    switch (this.options.arrays.mode) {
+      case 'all': return this.getArraySchemaMerging(arr)
+      case 'first': return this.getArraySchemaNoMerging(arr)
+      case 'uniform': return this.getArraySchemaUniform(arr)
+      default: throw new Error(`Unknown array mode option '${this.options.arrays.mode}'`)
+    }
   }
 
   getStringSchemaDefault(value) {

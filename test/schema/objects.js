@@ -6,6 +6,7 @@ const omit = require('lodash.omit')
 const testSchema = require('../helpers/testSchema').tesSchemaWithAndWithoutArrayMerge
 const testSchemaNormal = require('../helpers/testSchema').testSchemaWithoutArrayMerge
 const testSchemaMerge = require('../helpers/testSchema').testSchemaWithArrayMerge
+const testSchemaUniform = require('../helpers/testSchema').testSchemaArrayUniform
 const toJsonSchema = require('../../src/index')
 
 const expect = require('chai').expect
@@ -73,6 +74,33 @@ describe('Objects', () => {
       const instance = {
         id: 12,
         a: [
+          {test: 1},
+          {test: 2},
+        ],
+      }
+      const schema = {
+        type: 'object',
+        properties: {
+          id: {type: 'integer'},
+          a: {
+            type: 'array',
+            items: {
+              type: 'object',
+              properties: {
+                test: {type: 'integer'},
+              },
+            },
+          },
+        },
+      }
+      testSchema(instance, schema)
+    })
+
+
+    it('should get schema for object with nested array of incompatible objects (all)', () => {
+      const instance = {
+        id: 12,
+        a: [
 					{test: 1},
 					{differentKeyName: 2},
         ],
@@ -90,7 +118,55 @@ describe('Objects', () => {
         },
       }
       testSchemaMerge(instance, schema)
-      should.throw(() => testSchemaNormal(instance, schema), Error, 'Invalid schema')
+    })
+
+    it('should get schema for object with nested array of incompatible objects (first)', () => {
+      const instance = {
+        id: 12,
+        a: [
+					{test: 1},
+					{differentKeyName: 2},
+        ],
+      }
+      const schema = {
+        type: 'object',
+        properties: {
+          id: {type: 'integer'},
+          a: {
+            type: 'array',
+            items: {
+              type: 'object',
+              properties: {
+                test: {type: 'integer'},
+              },
+            },
+          },
+        },
+      }
+      testSchemaNormal(instance, schema)
+    })
+
+    it('should throw error for object with nested array of incompatible objects', () => {
+      const instance = {
+        id: 12,
+        a: [
+					{test: 1},
+					{differentKeyName: 2},
+        ],
+      }
+      const schema = {
+        type: 'object',
+        properties: {
+          id: {type: 'integer'},
+          a: {
+            type: 'array',
+            items: {
+              type: 'object',
+            },
+          },
+        },
+      }
+      should.throw(() => testSchemaUniform(instance, schema), Error, 'Invalid schema')
     })
 
   })

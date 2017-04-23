@@ -19,13 +19,14 @@ function testSchema(options) {
   }
 }
 
-const testSchemaWithArrayMerge = testSchema({arrays: {mode: 'merge'}})
-
+const testSchemaWithArrayMerge = testSchema({arrays: {mode: 'all'}})
 const testSchemaWithoutArrayMerge = testSchema({arrays: {mode: 'first'}})
+const testSchemaArrayUniform = testSchema({arrays: {mode: 'uniform'}})
 
 const tesSchemaWithAndWithoutArrayMerge = (instance, jsonSchema, additionalOptions) => {
   testSchemaWithArrayMerge(instance, jsonSchema, additionalOptions)
   testSchemaWithoutArrayMerge(instance, jsonSchema, additionalOptions)
+  testSchemaArrayUniform(instance, jsonSchema, additionalOptions)
 }
 
 module.exports = {
@@ -33,4 +34,5 @@ module.exports = {
   testSchemaWithArrayMerge,
   testSchemaWithoutArrayMerge,
   tesSchemaWithAndWithoutArrayMerge,
+  testSchemaArrayUniform,
 }
