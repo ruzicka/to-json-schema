@@ -19,6 +19,8 @@
     "JSON",
     "schema",
     "JSON schema",
+    "jsonschema",
+    "converter",
     "convert"
   ],
   "author": "David Ruzicka",
