@@ -1,9 +1,16 @@
 [![npm version](https://badge.fury.io/js/to-json-schema.svg)](https://badge.fury.io/js/to-json-schema)
 [![Build Status](https://travis-ci.org/ruzicka/to-json-schema.svg?branch=master)](https://travis-ci.org/ruzicka/to-json-schema)
 [![Coverage Status](https://coveralls.io/repos/github/ruzicka/to-json-schema/badge.svg?branch=master)](https://coveralls.io/github/ruzicka/to-json-schema?branch=master)
+
 # to-json-schema
 
 Converts javascript objects (and other types) to corresponding JSON schema
+
+## Install
+
+```
+npm install to-json-schema
+```
 
 ## Example usage
 ```javascript
