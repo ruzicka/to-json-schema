@@ -63,7 +63,7 @@ const FORMAT_REGEXPS = {
   'utc-millisec'(input) {
     return (typeof input === 'string') && parseFloat(input) === parseInt(input, 10) && !isNaN(input)
   },
-  regex(input) {
+  regex /* istanbul ignore next: not supporting regex right now */ (input) { // eslint-disable-line space-before-function-paren
     let result = true
     try {
       new RegExp(input) // eslint-disable-line no-new
