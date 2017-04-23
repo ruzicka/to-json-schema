@@ -1,3 +1,4 @@
+[![npm version](https://badge.fury.io/js/to-json-schema.svg)](https://badge.fury.io/js/to-json-schema)
 [![Build Status](https://travis-ci.org/ruzicka/to-json-schema.svg?branch=master)](https://travis-ci.org/ruzicka/to-json-schema)
 [![Coverage Status](https://coveralls.io/repos/github/ruzicka/to-json-schema/badge.svg?branch=master)](https://coveralls.io/github/ruzicka/to-json-schema?branch=master)
 # to-json-schema
@@ -46,8 +47,8 @@ const schema = toJsonSchema(objToBeConverted);
 
 ## `toJsonSchema(value, options)`
 
-`immutable-custom-merge` exports just one function. It performs deep merge of `val1` into `val2`, using provided `schema` to determine how to
-merge specific keys if there's a collision.
+`to-json-schema` exports function that is able to convert most javascript values to JSON schema. Such a schema can be used to
+further validation of similar objects/values
 
 * `value`: **required** Any javascript value
 * `options`: documentation will be updated later   
