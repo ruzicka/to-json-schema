@@ -263,6 +263,28 @@ describe('Objects', () => {
     })
   })
 
+  describe('additional properties option', () => {
+
+    it('should return proper schema 1', () => {
+      const options = {
+        objects: {additionalProperties: false},
+      }
+      const instance = {
+        a: 1,
+        b: 'str',
+      }
+      const expectedSchema = {
+        type: 'object',
+        properties: {
+          a: {type: 'integer'},
+          b: {type: 'string'},
+        },
+        additionalProperties: false,
+      }
+      testSchemaNormal(instance, expectedSchema, options)
+    })
+  })
+
   describe('Errors', () => {
 
     it('should throw error for undefined value', () => {

@@ -16,6 +16,8 @@ const defaultOptions = {
   },
   objects: {
     customFnc: null,
+    requireOverrideFnc: null,
+    additionalProperties: true,
   },
 }
 
@@ -200,6 +202,10 @@ class ToJsonSchema {
       schema = this.options.objects.requireOverrideFnc(schema, value, defaultRequireFunc)
     } else {
       schema = defaultRequireFunc(schema)
+    }
+
+    if (schema.type === 'object' && this.options.objects.additionalProperties === false ) {
+      schema.additionalProperties = false
     }
 
     return schema
