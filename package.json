@@ -8,8 +8,8 @@
     "prepublish": "npm test && npm run build",
     "lint": "eslint src/ test/",
     "test": "mocha --recursive",
-    "test:coverage": "istanbul cover _mocha -- --recursive",
-    "test:coveralls": "istanbul cover _mocha -- --recursive && cat ./coverage/lcov.info | coveralls"
+    "test:coverage": "nyc mocha --recursive",
+    "test:coveralls": "nyc --reporter=lcov --reporter=text-lcov npm test && cat ./coverage/lcov.info | coveralls"
   },
   "repository": {
     "type": "git",
@@ -48,7 +48,8 @@
     "eslint-plugin-import": "^2.2.0",
     "istanbul": "^0.4.5",
     "lodash.clonedeep": "^4.5.0",
-    "mocha": "^2.5.3"
+    "mocha": "^2.5.3",
+    "nyc": "^11.4.1"
   },
   "files": [
     "lib"
