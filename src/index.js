@@ -186,10 +186,20 @@ class ToJsonSchema {
         schema = {type}
     }
 
-    if (typeof required === 'boolean') {
-      schema.required = required
-    } else if (this.options.required) {
-      schema.required = true
+
+    const defaultRequireFunc = schm => {
+      if (typeof required === 'boolean') {
+        return {...schm, required: required}
+      } else if (this.options.required) {
+        return {...schm, required: true}
+      }
+      return schm
+    }
+
+    if (this.options.objects.requireOverrideFnc) {
+      schema = this.options.objects.requireOverrideFnc(schema, value, defaultRequireFunc)
+    } else {
+      schema = defaultRequireFunc(schema)
     }
 
     return schema

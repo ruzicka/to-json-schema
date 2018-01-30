@@ -94,13 +94,13 @@ const schema = toJsonSchema(33, {required: true});
 
 Configuration parameters for arrays are located in object under key `arrays` 
 
-**mode** (`merge|first|uniform` default is `merge`)
+**mode** (`all|first|uniform` default is `merge`)
   
-`merge` option causes parser to go through all array items finding most compatible yet most descriptive schema possible. 
+`all` option causes parser to go through all array items finding most compatible yet most descriptive schema possible. 
 
 ```javascript
 const arr = [33, 44, 55];
-const schema = toJsonSchema(arr, {arrays: {mode: 'merge'}});
+const schema = toJsonSchema(arr, {arrays: {mode: 'all'}});
 /* Items are compatible type is detected
 {
   "type": "array",
@@ -113,7 +113,7 @@ const schema = toJsonSchema(arr, {arrays: {mode: 'merge'}});
 
 ```javascript
 const arr = [33, 'str', 55];
-const schema = toJsonSchema(arr, {arrays: {mode: 'merge'}});
+const schema = toJsonSchema(arr, {arrays: {mode: 'all'}});
 /* Items' types are incompatible. Type is omitted in schema to be able to validate input object
 {
   "type": "array"
@@ -126,7 +126,7 @@ const arr = [
   {name: 'john', grades: [1, 2, 3]},
   {name: 'david', grades: ['a', 'b', 'c']}
 ];
-const schema = toJsonSchema(arr, {arrays: {mode: 'merge'}});
+const schema = toJsonSchema(arr, {arrays: {mode: 'all'}});
 /* Incompatible in sub-item. Schema still describes object properties
 {
   "type": "array",
@@ -205,6 +205,39 @@ const schema = toJsonSchema(obj, options);
       "type": "integer",
       "required": true
     }
+  }
+}
+*/
+```
+
+
+**requireOverrideFnc** (`function`)
+
+Allows to define custom logic for assigning require filed value. This may override default
+behavior.
+
+Provided function will receive these parameters:
+- `schema` JSON schema
+- `value` original value from which the JSON schema was generated
+- default `function` that normally sets the require field for given schema. 
+This function receives `schema` and returns new schema where `required` fields may have been overriden 
+
+Custom function from example bellow extracts only `a` and `b` properties from input object and makes `b` property required:
+```javascript
+const options = {
+  objects: {
+    requireOverrideFnc: (schema, obj, defaultFunc) =>
+      (typeof obj === 'number') ? {...schema, required: true} : defaultFunc(schema),
+  },
+};
+const obj = {a: 1, b: 'str'};
+const schema = toJsonSchema(obj, options);
+/*
+{
+  type: 'object',
+  properties: {
+    a: {type: 'integer', required: true},
+    b: {type: 'string'},
   }
 }
 */

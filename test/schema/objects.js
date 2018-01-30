@@ -3,7 +3,7 @@
 const should = require('chai').should()
 const omit = require('lodash.omit')
 
-const testSchema = require('../helpers/testSchema').tesSchemaWithAndWithoutArrayMerge
+const testSchemaWithAndWithoutMerge = require('../helpers/testSchema').tesSchemaWithAndWithoutArrayMerge
 const testSchemaNormal = require('../helpers/testSchema').testSchemaWithoutArrayMerge
 const testSchemaMerge = require('../helpers/testSchema').testSchemaWithArrayMerge
 const testSchemaUniform = require('../helpers/testSchema').testSchemaArrayUniform
@@ -25,11 +25,11 @@ describe('Objects', () => {
   describe('Simple objects', () => {
 
     it('should get schema for empty object', () => {
-      testSchema({}, {type: 'object'})
+      testSchemaWithAndWithoutMerge({}, {type: 'object'})
     })
 
     it('should get schema for object with properties (no nested objects)', () => {
-      testSchema({
+      testSchemaWithAndWithoutMerge({
         id: 11,
         name: 'john',
         labels: ['short', 'fat'],
@@ -47,7 +47,7 @@ describe('Objects', () => {
     })
 
     it('should get schema for object with nested objects', () => {
-      testSchema({
+      testSchemaWithAndWithoutMerge({
         id: 11,
         name: 'john',
         friend: {
@@ -93,7 +93,7 @@ describe('Objects', () => {
           },
         },
       }
-      testSchema(instance, schema)
+      testSchemaWithAndWithoutMerge(instance, schema)
     })
 
 
@@ -180,7 +180,7 @@ describe('Objects', () => {
     }
 
     it('should remove a and make b required', () => {
-      testSchema({a: 1, b: 2, c: 3}, {
+      testSchemaWithAndWithoutMerge({a: 1, b: 2, c: 3}, {
         type: 'object',
         properties: {
           b: {type: 'integer', required: true},
@@ -190,7 +190,7 @@ describe('Objects', () => {
     })
 
     it('should remove a and make b required also for nested', () => {
-      testSchema({a: 1, b: 2, c: {a: 1, b: 2, c: 3}}, {
+      testSchemaWithAndWithoutMerge({a: 1, b: 2, c: {a: 1, b: 2, c: 3}}, {
         type: 'object',
         properties: {
           b: {type: 'integer', required: true},
@@ -203,6 +203,63 @@ describe('Objects', () => {
           },
         },
       }, options)
+    })
+  })
+
+  describe('Custom object func and require override func', () => {
+
+    it('should return proper schema 1', () => {
+      const options = {
+        objects: {
+          requireOverrideFnc: (schema, obj, defaultFunc) =>
+            (typeof obj === 'number') ? {...schema, required: true} : defaultFunc(schema),
+        },
+      }
+
+      const instance = {
+        a: 1,
+        b: 'str',
+      }
+      const expectedSchema = {
+        type: 'object',
+        properties: {
+          a: {type: 'integer', required: true},
+          b: {type: 'string'},
+        }
+      }
+      testSchemaNormal(instance, expectedSchema, options)
+    })
+
+    it('should return proper schema 2', () => {
+      const options = {
+        arrays: {
+          mode: 'first',
+        },
+        objects: {
+          customFnc: (obj, defaultFnc) => obj.$schema || defaultFnc(obj),
+          requireOverrideFnc: (schema, obj, defaultFunc) => {
+            if (obj.$schema) {
+              return schema
+            }
+            return defaultFunc(schema)
+          },
+        },
+        required: true,
+      }
+
+      const instance = {
+        id: 1,
+        label: {$schema: {type: 'string', required: false}},
+      }
+      const expectedSchema = {
+        type: 'object',
+        properties: {
+          id: {type: 'integer', required: true},
+          label: {type: 'string', required: false},
+        },
+        required: true,
+      }
+      testSchemaNormal(instance, expectedSchema, options)
     })
   })
 
