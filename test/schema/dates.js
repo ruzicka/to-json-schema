@@ -10,8 +10,10 @@ describe('Dates', () => {
   })
 
   it("shouldn't validate string date", () => {
-    should.throw(() => testSchema('2012-07-08T16:41:41.532+00:00', {type: 'date'}), Error,
-			'Generated schema is not deep equal with expected result')
+    should.throw(
+      () => testSchema('2012-07-08T16:41:41.532+00:00', {type: 'date'}), Error,
+      'Generated schema is not deep equal with expected result'
+    )
   })
 
 })

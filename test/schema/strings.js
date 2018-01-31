@@ -1,12 +1,10 @@
 'use strict'
 
 const cloneDeep = require('lodash.clonedeep')
-
-const helpers = require('../../src/helpers')
 const testSchema = require('../helpers/testSchema').tesSchemaWithAndWithoutArrayMerge
 const toJsonSchema = require('../../src/index')
-
 const chai = require('chai')
+
 chai.should()
 
 // TODO regulars

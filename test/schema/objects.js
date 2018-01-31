@@ -9,7 +9,7 @@ const testSchemaMerge = require('../helpers/testSchema').testSchemaWithArrayMerg
 const testSchemaUniform = require('../helpers/testSchema').testSchemaArrayUniform
 const toJsonSchema = require('../../src/index')
 
-const expect = require('chai').expect
+const {expect} = require('chai')
 
 describe('Objects', () => {
 
@@ -101,8 +101,8 @@ describe('Objects', () => {
       const instance = {
         id: 12,
         a: [
-					{test: 1},
-					{differentKeyName: 2},
+          {test: 1},
+          {differentKeyName: 2},
         ],
       }
       const schema = {
@@ -124,8 +124,8 @@ describe('Objects', () => {
       const instance = {
         id: 12,
         a: [
-					{test: 1},
-					{differentKeyName: 2},
+          {test: 1},
+          {differentKeyName: 2},
         ],
       }
       const schema = {
@@ -150,8 +150,8 @@ describe('Objects', () => {
       const instance = {
         id: 12,
         a: [
-					{test: 1},
-					{differentKeyName: 2},
+          {test: 1},
+          {differentKeyName: 2},
         ],
       }
       const schema = {
@@ -225,7 +225,7 @@ describe('Objects', () => {
         properties: {
           a: {type: 'integer', required: true},
           b: {type: 'string'},
-        }
+        },
       }
       testSchemaNormal(instance, expectedSchema, options)
     })

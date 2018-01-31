@@ -1,10 +1,8 @@
 'use strict'
 
-const should = require('chai').should()
-
-const testSchema = require('./helpers/testSchema').testSchemaWithoutArrayMerge
 const testSchemaMerge = require('./helpers/testSchema').testSchemaWithArrayMerge
-// const testSchemaBoth = require('./helpers/testSchema').tesSchemaWithAndWithoutArrayMerge
+const toJsonSchema = require('../src/index')
+const {expect} = require('chai')
 
 describe('Misc', () => {
 
@@ -80,4 +78,13 @@ describe('Misc', () => {
     })
   })
 
+  describe('additional properties option', () => {
+
+    it('should return proper schema 1', () => {
+      const options = {
+        arrays: {mode: 'non-existing-mode'},
+      }
+      expect(() => toJsonSchema([1, 'a'], options)).to.throw(Error, "Unknown array mode option 'non-existing-mode'")
+    })
+  })
 })

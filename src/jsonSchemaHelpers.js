@@ -9,7 +9,7 @@ const types = {
 
   number: function testNumber(instance) {
     // isFinite returns false for NaN, Infinity, and -Infinity
-    return typeof instance === 'number' && isFinite(instance)
+    return typeof instance === 'number' && isFinite(instance) // eslint-disable-line no-restricted-globals
   },
 
   integer: function testInteger(instance) {
@@ -60,9 +60,8 @@ const FORMAT_REGEXPS = {
 
   alpha: /^[a-zA-Z]+$/,
   alphanumeric: /^[a-zA-Z0-9]+$/,
-  'utc-millisec'(input) {
-    return (typeof input === 'string') && parseFloat(input) === parseInt(input, 10) && !isNaN(input)
-  },
+  'utc-millisec': input =>
+    (typeof input === 'string') && parseFloat(input) === parseInt(input, 10) && !isNaN(input), // eslint-disable-line no-restricted-globals
   regex /* istanbul ignore next: not supporting regex right now */ (input) { // eslint-disable-line space-before-function-paren
     let result = true
     try {

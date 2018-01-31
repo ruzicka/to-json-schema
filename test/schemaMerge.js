@@ -1,7 +1,6 @@
 'use strict'
 
-const expect = require('chai').expect
-const should = require('chai').should()
+const {expect} = require('chai')
 const helpers = require('../src/helpers')
 
 describe('Schema merge', () => {

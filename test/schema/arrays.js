@@ -89,8 +89,8 @@ describe('Array', () => {
 
     it('should get array of specific objects schema for array of objects of same type', () => {
       testSchemaBoth([
-				{id: 11, title: 'test'},
-				{id: 12, title: 'test 2'},
+        {id: 11, title: 'test'},
+        {id: 12, title: 'test 2'},
       ], {
         type: 'array',
         items: {
@@ -105,8 +105,8 @@ describe('Array', () => {
 
     it('should get array of specific objects schema for array of objects of same schema', () => {
       const data = [
-				{id: 11, title: 'test'},
-				{id: 12.1, title: 'test 2'},
+        {id: 11, title: 'test'},
+        {id: 12.1, title: 'test 2'},
       ]
       testSchemaMerge(data, {
         type: 'array',
@@ -123,8 +123,8 @@ describe('Array', () => {
 
     it('should get array of generic objects schema for array of objects of incompatible schemas', () => {
       const data = [
-				{id: 11, title: 'test'},
-				{id: 12, name: 'nameless'},
+        {id: 11, title: 'test'},
+        {id: 12, name: 'nameless'},
       ]
       testSchemaMerge(data, {
         type: 'array',
@@ -137,8 +137,8 @@ describe('Array', () => {
 
     it('should get array of arrays of Numbers schema for array of arrays of mixed numbers/ints', () => {
       const data = [
-				[1, 2, 3],
-				[1.1, 2.2, 3],
+        [1, 2, 3],
+        [1.1, 2.2, 3],
       ]
       testSchemaMerge(data, {
         type: 'array',
@@ -152,8 +152,8 @@ describe('Array', () => {
 
     it('should get array of generic arrays schema for array of arrays of incompatible types', () => {
       const data = [
-				[1, 2, 3, {test: 23}],
-				[1.1, 2.2, 3],
+        [1, 2, 3, {test: 23}],
+        [1.1, 2.2, 3],
       ]
       testSchemaMerge(data, {
         type: 'array',
@@ -166,8 +166,8 @@ describe('Array', () => {
 
     it('should get schema for array of complex objects containing arrays of mixed ints/nums', () => {
       const data = [
-				{id: 11, a: [1, 2, 3]},
-				{id: 12, a: [1.1, 2.2, 3]},
+        {id: 11, a: [1, 2, 3]},
+        {id: 12, a: [1.1, 2.2, 3]},
       ]
       testSchemaMerge(data, {
         type: 'array',
@@ -187,8 +187,8 @@ describe('Array', () => {
 
     it('should get schema for array of complex objects containing arrays of incompatible types', () => {
       const data = [
-				{id: 11, a: [1, 2, 3, {test: 23}]},
-				{id: 12, a: [1.1, 2.2, 3]},
+        {id: 11, a: [1, 2, 3, {test: 23}]},
+        {id: 12, a: [1.1, 2.2, 3]},
       ]
       testSchemaMerge(data, {
         type: 'array',
@@ -206,30 +206,36 @@ describe('Array', () => {
     })
 
     it('should get schema for array of complex objects containing deeply ' +
-			'nested arrays of all kind of compatible/incompatible types', () => {
+      'nested arrays of all kind of compatible/incompatible types', () => {
       const data = [
-        {id: 11,
+        {
+          id: 11,
           a: [
-            {b: [1, 2, 3],
+            {
+              b: [1, 2, 3],
               c: [1, 2, 3],
               d: [1, 2, 3],
               e: [1, 2, 3],
             },
-            {b: [1, 2, 3],
+            {
+              b: [1, 2, 3],
               c: [1, 2.2, 3],
               d: [1, 2, 3],
               e: [1, 2, {x: 11}],
             },
           ],
         },
-        {id: 12,
+        {
+          id: 12,
           a: [
-            {b: [1, 2, 3],
+            {
+              b: [1, 2, 3],
               c: [1, 2, 3],
               d: [1, 2.2, 3],
               e: [1, 2, 3],
             },
-            {b: [1, 2, 3],
+            {
+              b: [1, 2, 3],
               c: [1, 2.2, 3],
               d: [1, 2, 3],
               e: [1, 2, 3],
@@ -263,14 +269,20 @@ describe('Array', () => {
 
     it('should get schema for array of objects that differs in items of nested arrays', () => {
       const data = [
-        {id: 11, a: [
-					{test: 1},
-					{test: 2.1},
-        ]},
-        {id: 12, a: [
-					{test: 1},
-					{differentKeyName: 2},
-        ]},
+        {
+          id: 11,
+          a: [
+            {test: 1},
+            {test: 2.1},
+          ],
+        },
+        {
+          id: 12,
+          a: [
+            {test: 1},
+            {differentKeyName: 2},
+          ],
+        },
       ]
       testSchemaMerge(data, {
         type: 'array',
@@ -307,10 +319,10 @@ describe('Array', () => {
     //     items: {
     //       type: 'object',
     //      properties: {
-    //       	a: {
-    //       		type: 'array',
+    //         a: {
+    //           type: 'array',
     //          items: {
-    //       			type: 'string'
+    //             type: 'string'
     //          }
     //        }
     //      }

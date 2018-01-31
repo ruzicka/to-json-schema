@@ -26,7 +26,7 @@ const filteredFormats = helpers.stringFormats.filter(item => skipReverseFind.ind
 
 function getCommonTypeFromArrayOfTypes(arrOfTypes) {
   let lastVal
-  for (let i = 0, length = arrOfTypes.length; i < length; i++) {
+  for (let i = 0, {length} = arrOfTypes; i < length; i++) {
     let currentType = arrOfTypes[i]
     if (i > 0) {
       if (currentType === 'integer' && lastVal === 'number') {
@@ -41,14 +41,14 @@ function getCommonTypeFromArrayOfTypes(arrOfTypes) {
   return lastVal
 }
 
-class ToJsonSchema {
+function getCommonArrayItemsType(arr) {
+  return getCommonTypeFromArrayOfTypes(arr.map(item => helpers.getType(item)))
+}
 
+
+class ToJsonSchema {
   constructor(options) {
     this.options = merge({}, defaultOptions, options)
-  }
-
-  getCommonArrayItemsType(arr) {
-    return getCommonTypeFromArrayOfTypes(arr.map(item => helpers.getType(item)))
   }
 
   /**
@@ -68,7 +68,7 @@ class ToJsonSchema {
     const objKeys = Object.keys(obj)
     if (objKeys.length > 0) {
       schema.properties = objKeys.reduce((acc, propertyName) => {
-        let required  // keep it undefined if not in requiredFields
+        let required // keep it undefined if not in requiredFields
         if (requiredFields.indexOf(propertyName) >= 0) {
           required = true
         }
@@ -88,7 +88,7 @@ class ToJsonSchema {
 
   getArraySchemaMerging(arr) {
     const schema = {type: 'array'}
-    const commonType = this.getCommonArrayItemsType(arr)
+    const commonType = getCommonArrayItemsType(arr)
     if (commonType) {
       schema.items = {type: commonType}
       if (commonType !== 'integer' && commonType !== 'number') {
@@ -96,10 +96,8 @@ class ToJsonSchema {
         if (itemSchema) {
           schema.items = itemSchema
         }
-      } else {
-        if (this.options.required) {
-          schema.items.required = true
-        }
+      } else if (this.options.required) {
+        schema.items.required = true
       }
     }
     return schema
@@ -191,7 +189,7 @@ class ToJsonSchema {
 
     const defaultRequireFunc = schm => {
       if (typeof required === 'boolean') {
-        return {...schm, required: required}
+        return {...schm, required}
       } else if (this.options.required) {
         return {...schm, required: true}
       }
@@ -204,7 +202,7 @@ class ToJsonSchema {
       schema = defaultRequireFunc(schema)
     }
 
-    if (schema.type === 'object' && this.options.objects.additionalProperties === false ) {
+    if (schema.type === 'object' && this.options.objects.additionalProperties === false) {
       schema.additionalProperties = false
     }
 

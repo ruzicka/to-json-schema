@@ -2,10 +2,6 @@
 
 const isEqual = require('lodash.isequal')
 const merge = require('lodash.merge')
-const omit = require('lodash.omit')
-const without = require('lodash.without')
-
-const helpers = require('../../src/helpers')
 const toJsonSchema = require('../../src/index')
 
 function testSchema(options) {
