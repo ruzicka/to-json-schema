@@ -30,39 +30,39 @@ const schema = toJsonSchema(objToBeConverted);
 
 ```javascript
 {
-    "type": "object",
-    "properties": {
-        "name": {
-            "type": "string"
-        },
-        "rank": {
-            "type": "integer"
-        },
-        "born": {
-            "type": "string",
-            "format": "date-time"
-        },
-        "luckyNumbers": {
-            "type": "array",
-            "items": {
-                "type": "integer"
-            }
-        }
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string"
+    },
+    "rank": {
+      "type": "integer"
+    },
+    "born": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "luckyNumbers": {
+      "type": "array",
+      "items": {
+        "type": "integer"
+      }
     }
+  }
 }
 ```
 
 ## `toJsonSchema(value, options)`
 
-`to-json-schema` exports function that is able to convert most javascript values to JSON schema. Such a schema can be used to
+`to-json-schema` exports function that converts most javascript values to JSON schema. Such a schema can be used to
 further validation of similar objects/values
 
 * `value`: **required** Any javascript value
 * `options`: optional options object   
 
-## options
+## Options
 
-### common options
+### Common options
 
 Possible option values
 
@@ -89,19 +89,57 @@ const schema = toJsonSchema(33, {required: true});
 */
 ```
 
+**postProcessFnc** (`function`)
+
+parameters:
+- type (string) - JSON schema type of the `value`
+- schema (object) - Generated JSON schema
+- value - (any) - input value 
+- defaultFunc (function) - standard function that is used to post-process generated schema. Takes the `type`, `schema`, `value` params.
+
+By providing `postProcessFnc`, you can modify or replace generated schema. This function
+will be called recursively for all the properties and sub-properties and array items from leaves to the root.
+If you want to preserve default functionality, don't forget to call defaultFunc which is currently responsible for setting
+`required` for the schema items if there is common option `required` set tu true.   
+
+
+Following example is showing configuration options leading to all integer values to be automatically required
+
+```javascript
+const options = {
+  postProcessFnc: (type, schema, value, defaultFunc) =>
+    (type === 'integer') ? {...schema, required: true} : defaultFunc(type, schema, value),
+}
+
+const instance = {
+  a: 1,
+  b: 'str',
+}
+
+const schema = toJsonSchema(instance, options);
+/*
+{
+  type: 'object',
+  properties: {
+    a: {type: 'integer', required: true},
+    b: {type: 'string'},
+  },
+}*/
+```
+
  
-### arrays options
+### Arrays options
 
-Configuration parameters for arrays are located in object under key `arrays` 
-
-**mode** (`all|first|uniform` default is `merge`)
+**arrays.mode** (`all|first|uniform` default is `all`)
   
-`all` option causes parser to go through all array items finding most compatible yet most descriptive schema possible. 
+`all` option causes parser to go through all array items, finding the most compatible yet most descriptive schema possible. 
+
+Array items are all of compatible type:
 
 ```javascript
 const arr = [33, 44, 55];
 const schema = toJsonSchema(arr, {arrays: {mode: 'all'}});
-/* Items are compatible type is detected
+/*
 {
   "type": "array",
   "items": {
@@ -111,15 +149,19 @@ const schema = toJsonSchema(arr, {arrays: {mode: 'all'}});
 */
 ```
 
+Items' types are incompatible. Type is omitted in schema to be able to validate input object:
+
 ```javascript
 const arr = [33, 'str', 55];
 const schema = toJsonSchema(arr, {arrays: {mode: 'all'}});
-/* Items' types are incompatible. Type is omitted in schema to be able to validate input object
+/* 
 {
   "type": "array"
 }
 */
 ```
+
+Incompatible in sub-item. Schema still describes object properties
 
 ```javascript
 const arr = [
@@ -127,7 +169,7 @@ const arr = [
   {name: 'david', grades: ['a', 'b', 'c']}
 ];
 const schema = toJsonSchema(arr, {arrays: {mode: 'all'}});
-/* Incompatible in sub-item. Schema still describes object properties
+/*
 {
   "type": "array",
   "items": {
@@ -146,7 +188,7 @@ const schema = toJsonSchema(arr, {arrays: {mode: 'all'}});
 ```
 
 `first` option takes only first item in the array into account. If performance
- is a concern, use this option. 
+ is a concern, you may consider this option. 
 
 ```javascript
 const arr = ['str', 11, 30];
@@ -161,7 +203,7 @@ const schema = toJsonSchema(arr, {arrays: {mode: 'first'}});
 */
 ```
 
-`uniform` option requires all items in array to have same structure (to convert to same schema).
+`uniform` option requires all items in array to have same structure (to convert to the same schema).
 If not, error is thrown. 
 
 ```javascript
@@ -172,24 +214,59 @@ const schema = toJsonSchema(arr, {arrays: {mode: 'uniform'}});
 */
 ```
 
-### objects options
+### Objects options
 
-Configuration parameters for objects are located in object under key `objects` 
 
-**customFnc** (`function`)
+**objects.additionalProperties** (`boolean`, default `true`)
+
+if set to `false`, all object schemas will include JSON schema property `additionalProperties: false` which makes generated schema
+to perevent any extra properties.
+
+```javascript
+const options = {
+  objects: {additionalProperties: false},
+}
+const obj = {
+  a: {
+    c: 1,
+    d: 1,
+  },
+  b: 'str',
+}
+const schema = toJsonSchema(obj, options);
+/*
+{
+  type: 'object',
+  properties: {
+    a: {
+      type: 'object',
+      properties: {
+        c: {type: 'integer'},
+        d: {type: 'integer'},
+      },
+      additionalProperties: false,
+    },
+    b: {type: 'string'},
+  },
+  additionalProperties: false,
+}
+*/
+```
+
+**objects.preProcessFnc** (`function`)
+
+parameters:
+- obj - (object) - input object value that is supposed to be converted into JSON schema
+- defaultFunc (function) - standard function that is used to generate schema from object. Takes just the `obj` param.
 
 By providing custom function you will be able to modify any object value (including nested ones) and pre-process
-it before it gets converted to schema, modify generated schema or do the schema conversion entirely by yourself.
+it before it gets converted into schema or modify generated schema or do the schema conversion entirely by yourself.
 
-Provided function will receive two parameters:
-- `object` to be converted into JSON schema
-- default `function` that normally generates the schema. This function receives `object` to be converted to JSON schema and optional array of properties that should be considered `required` in resulting schema 
-
-Custom function from example bellow extracts only `a` and `b` properties from input object and makes `b` property required:
+Custom function from example bellow ignores all properties other than `a` and `b` from input object:
 ```javascript
 const options = {
   objects: {
-    customFnc: (obj, defaultFnc) => defaultFnc({a: obj.a, b: obj.b}, ['b'])
+    preProcessFnc: (obj, defaultFnc) => defaultFnc({a: obj.a, b: obj.b})
   }
 };
 const obj = {a: 1, b: 2, c: 3};
@@ -203,7 +280,6 @@ const schema = toJsonSchema(obj, options);
     },
     "b": {
       "type": "integer",
-      "required": true
     }
   }
 }
@@ -211,24 +287,23 @@ const schema = toJsonSchema(obj, options);
 ```
 
 
-**requireOverrideFnc** (`function`)
+**objects.postProcessFnc** (`function`)
 
-Allows to define custom logic for assigning require filed value. This may override default
-behavior.
+parameters:
+- schema (object) - Generated JSON schema
+- obj - (object) - input value 
+- defaultFunc (function) - standard function that is used to post-process generated schema. Takes the `schema`, `obj` params.
 
-Provided function will receive these parameters:
-- `schema` JSON schema
-- `value` original value from which the JSON schema was generated
-- default `function` that normally sets the require field for given schema. 
-This function receives `schema` and returns new schema where `required` fields may have been overriden 
+By providing `postProcessFnc`, you can modify or replace generated schema. This function
+will be called recursively for all the properties and sub-properties and array items from leaves to the root of the `obj` object. 
 
-Custom function from example bellow extracts only `a` and `b` properties from input object and makes `b` property required:
+Custom objects.postProcessFnc makes properties required on parent type level:
+
 ```javascript
 const options = {
   objects: {
-    requireOverrideFnc: (schema, obj, defaultFunc) =>
-      (typeof obj === 'number') ? {...schema, required: true} : defaultFunc(schema),
-  },
+    postProcessFnc: (schema, obj, defaultFnc) => ({...defaultFnc(schema, obj), required: Object.getOwnPropertyNames(obj)})
+  }
 };
 const obj = {a: 1, b: 'str'};
 const schema = toJsonSchema(obj, options);
@@ -236,9 +311,10 @@ const schema = toJsonSchema(obj, options);
 {
   type: 'object',
   properties: {
-    a: {type: 'integer', required: true},
+    a: {type: 'integer'},
     b: {type: 'string'},
   }
+  required: ['a', 'b']
 }
 */
 ```
@@ -246,9 +322,7 @@ const schema = toJsonSchema(obj, options);
 
 ### strings options
 
-Configuration parameters for strings are located in object under key `strings` 
-
-**customFnc** (`function`)
+**strings.preProcessFnc** (`function`)
 
 By providing custom function you will be able to modify any string value (including nested ones) and pre-process
 it before it gets converted to schema, modify generated schema or do the schema conversion entirely by yourself.
@@ -261,7 +335,7 @@ Custom function from example bellow converts any string of object containing str
 ```javascript
 const options = {
   strings: {
-    customFnc: (value, defaultFnc) => {
+    preProcessFnc: (value, defaultFnc) => {
       const schema = defaultFnc(value);
       if (value === 'date') {
         schema.format = 'date';
@@ -278,7 +352,7 @@ const schema = toJsonSchema('date', options);
 }
 */
 ```
-**detectFormat** (`true|false` default id `true`)
+**strings.detectFormat** (`true|false` default id `true`)
 
 When set to true format of the strings values may be detected based on it's content.
 

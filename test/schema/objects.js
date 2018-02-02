@@ -175,29 +175,29 @@ describe('Objects', () => {
 
     const options = {
       objects: {
-        customFnc: (obj, defaultFnc) => defaultFnc(omit(obj, ['a']), ['b']),
+        preProcessFnc: (obj, defaultFnc) => defaultFnc(omit(obj, ['a'])),
       },
     }
 
-    it('should remove a and make b required', () => {
+    it('should remove a', () => {
       testSchemaWithAndWithoutMerge({a: 1, b: 2, c: 3}, {
         type: 'object',
         properties: {
-          b: {type: 'integer', required: true},
+          b: {type: 'integer'},
           c: {type: 'integer'},
         },
       }, options)
     })
 
-    it('should remove a and make b required also for nested', () => {
+    it('should remove a also for nested', () => {
       testSchemaWithAndWithoutMerge({a: 1, b: 2, c: {a: 1, b: 2, c: 3}}, {
         type: 'object',
         properties: {
-          b: {type: 'integer', required: true},
+          b: {type: 'integer'},
           c: {
             type: 'object',
             properties: {
-              b: {type: 'integer', required: true},
+              b: {type: 'integer'},
               c: {type: 'integer'},
             },
           },
@@ -208,12 +208,10 @@ describe('Objects', () => {
 
   describe('Custom object func and require override func', () => {
 
-    it('should return proper schema 1', () => {
+    it('should return proper schema when postProcessFnc is used', () => {
       const options = {
-        objects: {
-          requireOverrideFnc: (schema, obj, defaultFunc) =>
-            (typeof obj === 'number') ? {...schema, required: true} : defaultFunc(schema),
-        },
+        postProcessFnc: (type, schema, value, defaultFunc) =>
+          (type === 'integer') ? {...schema, required: true} : defaultFunc(type, schema, value),
       }
 
       const instance = {
@@ -230,19 +228,14 @@ describe('Objects', () => {
       testSchemaNormal(instance, expectedSchema, options)
     })
 
-    it('should return proper schema 2', () => {
+    it('should return proper schema when both postProcessFnc and preProcessFnc are used', () => {
       const options = {
+        postProcessFnc: (type, schema, value, defaultFunc) => value.$schema ? schema : defaultFunc(type, schema, value),
         arrays: {
           mode: 'first',
         },
         objects: {
-          customFnc: (obj, defaultFnc) => obj.$schema || defaultFnc(obj),
-          requireOverrideFnc: (schema, obj, defaultFunc) => {
-            if (obj.$schema) {
-              return schema
-            }
-            return defaultFunc(schema)
-          },
+          preProcessFnc: (obj, defaultFnc) => obj.$schema || defaultFnc(obj),
         },
         required: true,
       }
@@ -265,7 +258,7 @@ describe('Objects', () => {
 
   describe('additional properties option', () => {
 
-    it('should return proper schema 1', () => {
+    it('should return proper schema that includes additionalProperties', () => {
       const options = {
         objects: {additionalProperties: false},
       }
@@ -283,6 +276,78 @@ describe('Objects', () => {
       }
       testSchemaNormal(instance, expectedSchema, options)
     })
+
+    it('should return proper schema that includes additionalProperties even on nested objects', () => {
+      const options = {
+        objects: {additionalProperties: false},
+      }
+      const instance = {
+        a: {
+          c: 1,
+          d: 1,
+        },
+        b: 'str',
+      }
+      const expectedSchema = {
+        type: 'object',
+        properties: {
+          a: {
+            type: 'object',
+            properties: {
+              c: {type: 'integer'},
+              d: {type: 'integer'},
+            },
+            additionalProperties: false,
+          },
+          b: {type: 'string'},
+        },
+        additionalProperties: false,
+      }
+      testSchemaNormal(instance, expectedSchema, options)
+    })
+
+    it('should return schema that does not includes additionalProperties on empty objects', () => {
+      const options = {
+        objects: {additionalProperties: false},
+      }
+      const instance = {}
+      const expectedSchema = {
+        type: 'object',
+      }
+      testSchemaNormal(instance, expectedSchema, options)
+    })
+
+
+    it('should return schema that does not includes additionalProperties on nested empty objects', () => {
+      const options = {
+        objects: {additionalProperties: false},
+      }
+      const instance = {
+        a: {},
+      }
+      const expectedSchema = {
+        type: 'object',
+        properties: {
+          a: {type: 'object'},
+        },
+        additionalProperties: false,
+      }
+      testSchemaNormal(instance, expectedSchema, options)
+    })
+  })
+
+  describe('objects.postProcessFnc', () => {
+
+    it('Custom objects.postProcessFnc makes properties required on parent type level', () => {
+      const options = {
+        objects: {
+          postProcessFnc: (schema, obj, defaultFnc) => ({...defaultFnc(schema, obj), required: Object.getOwnPropertyNames(obj)}),
+        },
+      }
+      testSchemaNormal({}, {type: 'object', required: []}, options)
+      testSchemaNormal({a: 1}, {type: 'object', properties: {a: {type: 'integer'}}, required: ['a']}, options)
+    })
+
   })
 
   describe('Errors', () => {

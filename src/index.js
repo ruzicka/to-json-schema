@@ -7,16 +7,18 @@ const helpers = require('./helpers')
 
 const defaultOptions = {
   required: false,
+  postProcessFnc: null,
+
   strings: {
     detectFormat: true,
-    customFnc: null,
+    preProcessFnc: null,
   },
   arrays: {
     mode: 'all',
   },
   objects: {
-    customFnc: null,
-    requireOverrideFnc: null,
+    preProcessFnc: null,
+    postProcessFnc: null,
     additionalProperties: true,
   },
 }
@@ -49,6 +51,12 @@ function getCommonArrayItemsType(arr) {
 class ToJsonSchema {
   constructor(options) {
     this.options = merge({}, defaultOptions, options)
+
+    this.getObjectSchemaDefault = this.getObjectSchemaDefault.bind(this)
+    this.getStringSchemaDefault = this.getStringSchemaDefault.bind(this)
+    this.objectPostProcessDefault = this.objectPostProcessDefault.bind(this)
+    this.commmonPostProcessDefault = this.commmonPostProcessDefault.bind(this)
+    this.objectPostProcessDefault = this.objectPostProcessDefault.bind(this)
   }
 
   /**
@@ -63,16 +71,12 @@ class ToJsonSchema {
     return schemas.reduce((acc, current) => helpers.mergeSchemaObjs(acc, current), schemas.pop())
   }
 
-  getObjectSchemaDefault(obj, requiredFields = []) {
+  getObjectSchemaDefault(obj) {
     const schema = {type: 'object'}
     const objKeys = Object.keys(obj)
     if (objKeys.length > 0) {
       schema.properties = objKeys.reduce((acc, propertyName) => {
-        let required // keep it undefined if not in requiredFields
-        if (requiredFields.indexOf(propertyName) >= 0) {
-          required = true
-        }
-        acc[propertyName] = this.getSchema(obj[propertyName], required) // eslint-disable-line no-param-reassign
+        acc[propertyName] = this.getSchema(obj[propertyName]) // eslint-disable-line no-param-reassign
         return acc
       }, {})
     }
@@ -80,8 +84,8 @@ class ToJsonSchema {
   }
 
   getObjectSchema(obj) {
-    if (this.options.objects.customFnc) {
-      return this.options.objects.customFnc(obj, this.getObjectSchemaDefault.bind(this))
+    if (this.options.objects.preProcessFnc) {
+      return this.options.objects.preProcessFnc(obj, this.getObjectSchemaDefault)
     }
     return this.getObjectSchemaDefault(obj)
   }
@@ -150,22 +154,32 @@ class ToJsonSchema {
   }
 
   getStringSchema(value) {
-    if (this.options.strings.customFnc) {
-      return this.options.strings.customFnc(value, this.getStringSchemaDefault.bind(this))
+    if (this.options.strings.preProcessFnc) {
+      return this.options.strings.preProcessFnc(value, this.getStringSchemaDefault)
     }
     return this.getStringSchemaDefault(value)
+  }
+
+  commmonPostProcessDefault(type, schema, value) { // eslint-disable-line no-unused-vars
+    if (this.options.required) {
+      return {...schema, required: true}
+    }
+    return schema
+  }
+
+  objectPostProcessDefault(schema, obj) {
+    if (this.options.objects.additionalProperties === false && Object.getOwnPropertyNames(obj).length > 0) {
+      return {...schema, additionalProperties: false}
+    }
+    return schema
   }
 
   /**
    * Gets JSON schema for provided value
    * @param value
-   * @param {boolean|null} required - If true/false, then it will be assumed that value is required/optional. If
-   * null, than the required field is omitted completely in the returned schema (this doesn't have an effect on subitems).
-   * @param {boolean} arrayMerge - If true, array items will be merged to least compatible scheme if types are
-   * incompatible.
    * @returns {object}
    */
-  getSchema(value, required) {
+  getSchema(value) {
     const type = helpers.getType(value)
     if (!type) {
       throw new Error("Type of value couldn't be determined")
@@ -187,23 +201,18 @@ class ToJsonSchema {
     }
 
 
-    const defaultRequireFunc = schm => {
-      if (typeof required === 'boolean') {
-        return {...schm, required}
-      } else if (this.options.required) {
-        return {...schm, required: true}
-      }
-      return schm
-    }
-
-    if (this.options.objects.requireOverrideFnc) {
-      schema = this.options.objects.requireOverrideFnc(schema, value, defaultRequireFunc)
+    if (this.options.postProcessFnc) {
+      schema = this.options.postProcessFnc(type, schema, value, this.commmonPostProcessDefault)
     } else {
-      schema = defaultRequireFunc(schema)
+      schema = this.commmonPostProcessDefault(type, schema, value)
     }
 
-    if (schema.type === 'object' && this.options.objects.additionalProperties === false) {
-      schema.additionalProperties = false
+    if (type === 'object') {
+      if (this.options.objects.postProcessFnc) {
+        schema = this.options.objects.postProcessFnc(schema, value, this.objectPostProcessDefault)
+      } else {
+        schema = this.objectPostProcessDefault(schema, value)
+      }
     }
 
     return schema

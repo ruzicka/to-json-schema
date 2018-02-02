@@ -198,7 +198,7 @@ describe('Strings', () => {
     const config = {
       strings: {
         detectFormat: true,
-        customFnc: (value, defaultFnc) => {
+        preProcessFnc: (value, defaultFnc) => {
           if (value === 'date') {
             return {type: 'string', format: 'date'}
           }
