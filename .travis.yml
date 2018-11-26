@@ -2,6 +2,8 @@ sudo: false
 language: node_js
 node_js:
   - '8'
+  - '10'
+  - 'node'
 
 env:
   global:
@@ -16,6 +18,8 @@ addons:
 script:
   - npm test
   - npm run lint
+
+install: npm install
 
 after_success:
   - npm run test:coveralls
