@@ -5,6 +5,7 @@ const should = require('chai').should()
 const testSchema = require('../helpers/testSchema').testSchemaWithoutArrayMerge
 const testSchemaMerge = require('../helpers/testSchema').testSchemaWithArrayMerge
 const testSchemaBoth = require('../helpers/testSchema').tesSchemaWithAndWithoutArrayMerge
+const testSchemaTuple = require('../helpers/testSchema').testSchemaArrayTuple
 
 describe('Array', () => {
 
@@ -23,12 +24,46 @@ describe('Array', () => {
       })
     })
 
+    it('should get tuple of integers schema for array of ints', () => {
+      testSchemaTuple([11, 12, 4], {
+        type: 'array',
+        items: [
+          {
+            type: 'integer',
+          },
+          {
+            type: 'integer',
+          },
+          {
+            type: 'integer',
+          },
+        ],
+      })
+    })
+
     it('should get array of numbers schema for array of floats', () => {
       testSchemaBoth([11.3, 12.4, 11.3], {
         type: 'array',
         items: {
           type: 'number',
         },
+      })
+    })
+
+    it('should get tuple of floats schema for array of floats', () => {
+      testSchemaTuple([11.3, 12.4, 11.3], {
+        type: 'array',
+        items: [
+          {
+            type: 'number',
+          },
+          {
+            type: 'number',
+          },
+          {
+            type: 'number',
+          },
+        ],
       })
     })
 
@@ -63,6 +98,23 @@ describe('Array', () => {
       })
     })
 
+    it('should get tuple of mixed types schema for array of mixed types', () => {
+      testSchemaTuple([11, 'hello', 0.1], {
+        type: 'array',
+        items: [
+          {
+            type: 'integer',
+          },
+          {
+            type: 'string',
+          },
+          {
+            type: 'number',
+          },
+        ],
+      })
+    })
+
     it('should get simple array schema for array of mixed types', () => {
       const data = ['hello', 'hi', 11]
       testSchemaMerge(data, {type: 'array'})
@@ -87,6 +139,21 @@ describe('Array', () => {
       })
     })
 
+    it('should get tuple of object schema for array containing just one object', () => {
+      testSchemaTuple([{id: 11, title: 'test'}], {
+        type: 'array',
+        items: [
+          {
+            type: 'object',
+            properties: {
+              id: {type: 'integer'},
+              title: {type: 'string'},
+            },
+          },
+        ],
+      })
+    })
+
     it('should get array of specific objects schema for array of objects of same type', () => {
       testSchemaBoth([
         {id: 11, title: 'test'},
@@ -100,6 +167,28 @@ describe('Array', () => {
             title: {type: 'string'},
           },
         },
+      })
+    })
+
+    it('should get tuple of specific objects schema for array of objects of same type', () => {
+      testSchemaTuple([
+        {id: 11, title: 'test'},
+        {id: 12, title: 'test 2'},
+      ], {
+        type: 'array',
+        items: [{
+          type: 'object',
+          properties: {
+            id: {type: 'integer'},
+            title: {type: 'string'},
+          },
+        }, {
+          type: 'object',
+          properties: {
+            id: {type: 'integer'},
+            title: {type: 'string'},
+          },
+        }],
       })
     })
 
@@ -119,6 +208,28 @@ describe('Array', () => {
         },
       })
       should.throw(() => testSchema(data), Error)
+    })
+
+    it('should get tuple of specific objects schema for array of objects of different schema', () => {
+      testSchemaTuple([
+        {id: 11.1, title: 'test'},
+        {id: 12, title: 'test 2'},
+      ], {
+        type: 'array',
+        items: [{
+          type: 'object',
+          properties: {
+            id: {type: 'number'},
+            title: {type: 'string'},
+          },
+        }, {
+          type: 'object',
+          properties: {
+            id: {type: 'integer'},
+            title: {type: 'string'},
+          },
+        }],
+      })
     })
 
     it('should get array of generic objects schema for array of objects of incompatible schemas', () => {

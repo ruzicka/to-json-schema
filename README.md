@@ -130,7 +130,7 @@ const schema = toJsonSchema(instance, options);
  
 ### Arrays options
 
-**arrays.mode** (`all|first|uniform` default is `all`)
+**arrays.mode** (`all|first|uniform|tuple` default is `all`)
   
 `all` option causes parser to go through all array items, finding the most compatible yet most descriptive schema possible. 
 
@@ -214,6 +214,29 @@ const schema = toJsonSchema(arr, {arrays: {mode: 'uniform'}});
 */
 ```
 
+`tuple` option generates a [tuple array](https://json-schema.org/understanding-json-schema/reference/array.html#tuple-validation)
+ (array of objects) from arrays.
+
+```javascript
+const arr = ['str', 11, 30];
+const schema = toJsonSchema(arr, {arrays: {mode: 'tuple'}});
+/*
+{
+  "type": "array",
+  "items": [
+    {
+      "type": "string"
+    },
+    {
+      "type": "integer"
+    },
+    {
+      "type": "integer"
+    }
+  ]
+}
+*/
+```
 ### Objects options
 
 
