@@ -115,6 +115,14 @@ class ToJsonSchema {
     return schema
   }
 
+  getArraySchemaTuple(arr) {
+    const schema = {type: 'array'}
+    if (arr.length > 0) {
+      schema.items = arr.map(item => this.getSchema(item))
+    }
+    return schema
+  }
+
   getArraySchemaUniform(arr) {
     const schema = this.getArraySchemaNoMerging(arr)
 
@@ -134,6 +142,7 @@ class ToJsonSchema {
       case 'all': return this.getArraySchemaMerging(arr)
       case 'first': return this.getArraySchemaNoMerging(arr)
       case 'uniform': return this.getArraySchemaUniform(arr)
+      case 'tuple': return this.getArraySchemaTuple(arr)
       default: throw new Error(`Unknown array mode option '${this.options.arrays.mode}'`)
     }
   }
