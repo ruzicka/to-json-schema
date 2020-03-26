@@ -35,8 +35,7 @@
     "lodash.merge": "^4.6.2",
     "lodash.omit": "^4.5.0",
     "lodash.without": "^4.4.0",
-    "lodash.xor": "^4.5.0",
-    "mocha": "^6.2.0"
+    "lodash.xor": "^4.5.0"
   },
   "devDependencies": {
     "@babel/cli": "^7.4.4",
@@ -54,6 +53,7 @@
     "eslint-plugin-import": "^2.2.0",
     "istanbul": "^0.4.5",
     "lodash.clonedeep": "^4.5.0",
+    "mocha": "^6.2.0",
     "nyc": "^14.1.0"
   },
   "files": [
