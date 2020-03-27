@@ -1,5 +1,0 @@
-instrumentation:
-    excludes: ['**/lib/**']
-    include-all-sources: true
-reporting:
-    print: detail
