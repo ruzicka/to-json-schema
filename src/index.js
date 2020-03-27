@@ -171,14 +171,14 @@ class ToJsonSchema {
 
   commmonPostProcessDefault(type, schema, value) { // eslint-disable-line no-unused-vars
     if (this.options.required) {
-      return {...schema, required: true}
+      return merge({}, schema, {required: true})
     }
     return schema
   }
 
   objectPostProcessDefault(schema, obj) {
     if (this.options.objects.additionalProperties === false && Object.getOwnPropertyNames(obj).length > 0) {
-      return {...schema, additionalProperties: false}
+      return merge({}, schema, {additionalProperties: false})
     }
     return schema
   }
