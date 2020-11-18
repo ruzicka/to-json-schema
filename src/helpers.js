@@ -40,6 +40,11 @@ const helpers = {
   mergeSchemaObjs(schema1, schema2) {
     const schema1Keys = keys(schema1)
     const schema2Keys = keys(schema2)
+
+    if (!schema1 || !schema2) {
+      return null;
+    }
+
     if (!isEqual(schema1Keys, schema2Keys)) {
       if (schema1.type === 'array' && schema2.type === 'array') {
         // TODO optimize???
