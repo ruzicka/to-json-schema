@@ -52,7 +52,7 @@
     "eslint-config-airbnb-base": "^12.1.0",
     "eslint-plugin-import": "^2.20.1",
     "lodash.clonedeep": "^4.5.0",
-    "mocha": "^7.1.1",
+    "mocha": "^10.2.0",
     "nyc": "^15.0.0"
   },
   "files": [
